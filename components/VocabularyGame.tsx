@@ -50,7 +50,7 @@ const WordAnimation = () => {
                   initial={{ y: -50, opacity: 0, rotate: -10 }}
                   animate={{ y: 0, opacity: 1, rotate: 0 }}
                   transition={{ type: "spring", bounce: 0.5, delay: i * 0.15 }}
-                  className="w-20 h-24 rounded-2xl text-[#FFB703] text-6xl font-bold flex items-center justify-center"
+                  className="w-16 h-20 md:w-20 md:h-24 rounded-2xl text-[#FFB703] text-4xl md:text-6xl font-bold flex items-center justify-center"
                   style={{ background: 'linear-gradient(135deg,#0D7377,#14213D)', border: '1px solid rgba(255,183,3,0.4)' }}
                 >
                   {l}
@@ -111,19 +111,19 @@ export default function VocabularyGame({ data, onComplete }: { data: VocabItem[]
       <div className="flex flex-col items-center justify-center min-h-[70vh] w-full max-w-4xl mx-auto p-4">
         <motion.div
           initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }}
-          className="w-full rounded-3xl overflow-hidden border p-8 md:p-12 flex flex-col items-center text-center shadow-[0_0_60px_rgba(13,115,119,0.3)]"
+          className="w-full rounded-3xl overflow-hidden border p-5 md:p-12 flex flex-col items-center text-center shadow-[0_0_60px_rgba(13,115,119,0.3)]"
           style={{ background: 'linear-gradient(160deg,#0D1B2A,#0a0a12)', borderColor: 'rgba(255,183,3,0.3)' }}
         >
-          <h2 className="text-5xl md:text-6xl font-bold text-[#FFB703] mb-6">جوڙ ۽ ٽوڙ ڇا آهي؟</h2>
-          <p className="text-2xl md:text-3xl text-[#FFF8EE]/80 mb-10 leading-relaxed max-w-2xl">
-            لفظن کي ٺاهڻ لاءِ اکرن کي ملائڻ کي <strong className="text-[#FFB703] text-4xl">جوڙ</strong> چئبو آهي، ۽ لفظن کي واپس اکرن ۾ ڌار ڪرڻ کي <strong className="text-[#FFB703] text-4xl">ٽوڙ</strong> چئبو آهي.
+          <h2 className="text-3xl md:text-6xl font-bold text-[#FFB703] mb-4">جوڙ ۽ ٽوڙ ڇا آهي؟</h2>
+          <p className="text-lg md:text-3xl text-[#FFF8EE]/80 mb-6 leading-relaxed max-w-2xl">
+            لفظن کي ٺاهڻ لاءِ اکرن کي ملائڻ کي <strong className="text-[#FFB703] text-2xl md:text-4xl">جوڙ</strong> چئبو آهي، ۽ لفظن کي واپس اکرن ۾ ڌار ڪرڻ کي <strong className="text-[#FFB703] text-2xl md:text-4xl">ٽوڙ</strong> چئبو آهي.
           </p>
-          <div className="flex flex-col items-center justify-center h-64 mb-12 w-full rounded-3xl border border-dashed overflow-hidden relative shadow-inner"
+          <div className="flex flex-col items-center justify-center h-48 md:h-64 mb-8 w-full rounded-3xl border border-dashed overflow-hidden relative shadow-inner"
             style={{ background: 'rgba(13,115,119,0.15)', borderColor: 'rgba(255,183,3,0.3)' }}>
             <WordAnimation />
           </div>
           <button onClick={() => setShowIntro(false)}
-            className="px-12 py-5 rounded-full text-4xl font-bold text-[#14213D] shadow-[0_0_30px_rgba(255,183,3,0.4)] flex items-center gap-4 hover:scale-105 active:scale-95 transition-transform"
+            className="px-8 py-4 md:px-12 md:py-5 rounded-full text-2xl md:text-4xl font-bold text-[#14213D] shadow-[0_0_30px_rgba(255,183,3,0.4)] flex items-center gap-3 active:scale-95 transition-transform"
             style={{ background: 'linear-gradient(135deg,#FFB703,#F4A261)' }}>
             <Play className="w-10 h-10 fill-current" />
             راند شروع ڪريو
@@ -138,34 +138,34 @@ export default function VocabularyGame({ data, onComplete }: { data: VocabItem[]
       <div className="w-full rounded-3xl overflow-hidden border shadow-[0_0_60px_rgba(13,115,119,0.3)]"
         style={{ background: 'linear-gradient(160deg,#0D1B2A,#0a0a12)', borderColor: 'rgba(255,183,3,0.3)' }}>
         {/* Header */}
-        <div className="p-6 flex justify-between items-center border-b"
+        <div className="p-4 md:p-6 flex justify-between items-center border-b"
           style={{ background: 'linear-gradient(90deg,#0D7377,#14213D)', borderColor: 'rgba(255,183,3,0.3)' }}>
-          <h2 className="text-3xl font-bold text-[#FFB703]">لفظن جا جوڙ ۽ ٽوڙ</h2>
-          <div className="text-2xl font-bold px-4 py-2 rounded-full text-[#14213D]"
+          <h2 className="text-xl md:text-3xl font-bold text-[#FFB703]">لفظن جا جوڙ ۽ ٽوڙ</h2>
+          <div className="text-lg md:text-2xl font-bold px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[#14213D]"
             style={{ background: 'linear-gradient(135deg,#FFB703,#F4A261)' }}>
             اسڪور: {score}
           </div>
         </div>
 
         {/* Game Area */}
-        <div className="p-8 md:p-16 flex flex-col items-center justify-center min-h-[400px]">
-          <div className="flex items-center gap-6 mb-12">
+        <div className="p-4 md:p-16 flex flex-col items-center justify-center min-h-[320px] md:min-h-[400px]">
+          <div className="flex items-center gap-4 mb-8 md:mb-12">
             <motion.h3 key={currentItem.word} initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-              className="text-6xl md:text-8xl font-bold text-[#FFB703]">{currentItem.word}</motion.h3>
+              className="text-5xl md:text-8xl font-bold text-[#FFB703]">{currentItem.word}</motion.h3>
             <button onClick={() => playSindhiAudio(currentItem.word)}
-              className="p-4 rounded-full border text-[#FFB703] hover:scale-105 transition-transform"
+              className="p-3 md:p-4 rounded-full border text-[#FFB703] active:scale-95 transition-transform"
               style={{ background: 'rgba(13,115,119,0.3)', borderColor: 'rgba(255,183,3,0.4)' }}>
-              <Volume2 className="w-8 h-8" />
+              <Volume2 className="w-6 h-6 md:w-8 md:h-8" />
             </button>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4" dir="rtl">
+          <div className="flex flex-wrap justify-center gap-3 md:gap-4" dir="rtl">
             <AnimatePresence>
               {currentItem.letters.map((letter, idx) => (
                 <motion.button key={`${currentIndex}-${idx}`}
                   initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}
                   onClick={() => { handleReveal(idx); playSindhiAudio(letter); }}
-                  className="w-20 h-24 md:w-24 md:h-28 rounded-2xl text-5xl md:text-6xl font-bold flex items-center justify-center transition-all hover:scale-105 border"
+                  className="w-16 h-20 md:w-24 md:h-28 rounded-2xl text-4xl md:text-6xl font-bold flex items-center justify-center transition-all active:scale-95 border"
                   style={revealed[idx]
                     ? { background: 'linear-gradient(135deg,#FFB703,#F4A261)', borderColor: '#FFB703', color: '#14213D' }
                     : { background: 'rgba(13,115,119,0.2)', borderColor: 'rgba(255,183,3,0.3)', borderStyle: 'dashed', color: 'rgba(255,255,255,0.3)' }}
@@ -179,16 +179,16 @@ export default function VocabularyGame({ data, onComplete }: { data: VocabItem[]
           <AnimatePresence>
             {allRevealed && (
               <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-                className="mt-12 flex flex-col items-center gap-6">
-                <div className="flex items-center gap-2 text-3xl font-bold px-6 py-3 rounded-full border"
+                className="mt-8 md:mt-12 flex flex-col items-center gap-4 md:gap-6">
+                <div className="flex items-center gap-2 text-2xl md:text-3xl font-bold px-5 py-2.5 md:px-6 md:py-3 rounded-full border"
                   style={{ color: '#2DC653', background: 'rgba(45,198,83,0.1)', borderColor: 'rgba(45,198,83,0.4)' }}>
-                  <CheckCircle2 className="w-8 h-8" /> بهترين!
+                  <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8" /> بهترين!
                 </div>
                 <button onClick={handleNext}
-                  className="px-8 py-4 rounded-full text-3xl font-bold text-[#14213D] flex items-center gap-3 shadow-[0_0_20px_rgba(255,183,3,0.4)] hover:scale-105 transition-transform"
+                  className="px-6 py-3 md:px-8 md:py-4 rounded-full text-2xl md:text-3xl font-bold text-[#14213D] flex items-center gap-3 shadow-[0_0_20px_rgba(255,183,3,0.4)] active:scale-95 transition-transform"
                   style={{ background: 'linear-gradient(135deg,#FFB703,#F4A261)' }}>
                   {currentIndex === data.length - 1 ? 'مڪمل ڪريو' : 'اڳيون لفظ'}
-                  <ArrowLeft className="w-8 h-8" />
+                  <ArrowLeft className="w-6 h-6 md:w-8 md:h-8" />
                 </button>
               </motion.div>
             )}

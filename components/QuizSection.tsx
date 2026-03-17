@@ -76,19 +76,19 @@ export default function QuizSection({ data, onComplete }: { data: QuizData, onCo
   const renderTF = () => {
     const q = tfQuestions[currentIndex];
     return (
-      <div className="flex flex-col items-center justify-center p-8 md:p-16 min-h-[400px] relative">
+      <div className="flex flex-col items-center justify-center p-5 md:p-16 min-h-[320px] md:min-h-[400px] relative">
         <AnimatePresence>{renderFeedback()}</AnimatePresence>
-        <h3 className="text-4xl md:text-5xl font-bold text-[#FFF8EE] mb-12 text-center leading-relaxed">
+        <h3 className="text-2xl md:text-5xl font-bold text-[#FFF8EE] mb-8 md:mb-12 text-center leading-relaxed" dir="rtl">
           {q.question}
         </h3>
-        <div className="flex gap-8">
+        <div className="flex gap-4 md:gap-8 w-full max-w-sm md:max-w-none justify-center">
           <button onClick={() => handleAnswer(q.answer === true)} disabled={showFeedback !== null}
-            className="px-12 py-6 rounded-2xl text-4xl font-bold transition-all hover:scale-105 disabled:opacity-50"
+            className="flex-1 md:flex-none px-6 py-4 md:px-12 md:py-6 rounded-2xl text-2xl md:text-4xl font-bold transition-all active:scale-95 disabled:opacity-50"
             style={{ background: 'linear-gradient(135deg,#1B4332,#0D7377)', border: '2px solid rgba(45,198,83,0.5)', color: '#2DC653' }}>
             صحيح
           </button>
           <button onClick={() => handleAnswer(q.answer === false)} disabled={showFeedback !== null}
-            className="px-12 py-6 rounded-2xl text-4xl font-bold transition-all hover:scale-105 disabled:opacity-50"
+            className="flex-1 md:flex-none px-6 py-4 md:px-12 md:py-6 rounded-2xl text-2xl md:text-4xl font-bold transition-all active:scale-95 disabled:opacity-50"
             style={{ background: 'linear-gradient(135deg,#6A0572,#C1121F)', border: '2px solid rgba(193,18,31,0.5)', color: '#FFB703' }}>
             غلط
           </button>
@@ -100,22 +100,22 @@ export default function QuizSection({ data, onComplete }: { data: QuizData, onCo
   const renderFIB = () => {
     const q = fibQuestions[currentIndex];
     return (
-      <div className="flex flex-col items-center justify-center p-8 md:p-16 min-h-[400px] relative">
+      <div className="flex flex-col items-center justify-center p-5 md:p-16 min-h-[320px] md:min-h-[400px] relative">
         <AnimatePresence>{renderFeedback()}</AnimatePresence>
-        <h3 className="text-4xl md:text-5xl font-bold text-[#FFF8EE] mb-12 text-center leading-relaxed">
+        <h3 className="text-xl md:text-5xl font-bold text-[#FFF8EE] mb-6 md:mb-12 text-center leading-relaxed" dir="rtl">
           {q.question.split('______').map((part, i, arr) => (
             <span key={i}>
               {part}
               {i < arr.length - 1 && (
-                <span className="inline-block w-32 border-b-4 border-[#FFB703] mx-4 align-middle" />
+                <span className="inline-block w-16 md:w-32 border-b-4 border-[#FFB703] mx-2 md:mx-4 align-middle" />
               )}
             </span>
           ))}
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-6 w-full max-w-3xl">
           {q.options.map((opt, idx) => (
             <button key={idx} onClick={() => handleAnswer(opt === q.answer)} disabled={showFeedback !== null}
-              className="px-8 py-6 rounded-2xl text-3xl font-bold transition-all hover:scale-105 disabled:opacity-50"
+              className="px-5 py-4 md:px-8 md:py-6 rounded-2xl text-xl md:text-3xl font-bold transition-all active:scale-95 disabled:opacity-50"
               style={{ background: 'linear-gradient(135deg,rgba(13,115,119,0.3),rgba(20,33,61,0.5))', border: '2px solid rgba(255,183,3,0.4)', color: '#FFB703' }}>
               {opt}
             </button>
@@ -131,17 +131,17 @@ export default function QuizSection({ data, onComplete }: { data: QuizData, onCo
     const percentage = (score / maxScore) * 100;
 
     return (
-      <div className="flex flex-col items-center justify-center p-8 md:p-16 min-h-[400px]">
-        <Trophy className={`w-48 h-48 mb-8 ${percentage >= 80 ? 'text-[#FFB703]' : 'text-white/30'}`} />
-        <h2 className="text-6xl font-bold text-[#FFF8EE] mb-4">توهان جو اسڪور</h2>
-        <div className="text-8xl font-black mb-8 gold-shimmer">{score} / {maxScore}</div>
-        <p className="text-3xl text-white/60 mb-12 font-bold">
+      <div className="flex flex-col items-center justify-center p-6 md:p-16 min-h-[320px] md:min-h-[400px]">
+        <Trophy className={`w-24 h-24 md:w-48 md:h-48 mb-4 md:mb-8 ${percentage >= 80 ? 'text-[#FFB703]' : 'text-white/30'}`} />
+        <h2 className="text-3xl md:text-6xl font-bold text-[#FFF8EE] mb-3 md:mb-4" dir="rtl">توهان جو اسڪور</h2>
+        <div className="text-5xl md:text-8xl font-black mb-4 md:mb-8 gold-shimmer">{score} / {maxScore}</div>
+        <p className="text-xl md:text-3xl text-white/60 mb-8 md:mb-12 font-bold" dir="rtl">
           {percentage >= 80 ? '🎉 بهترين ڪارڪردگي!' : '💪 وڌيڪ محنت جي ضرورت آهي'}
         </p>
         <button onClick={onComplete}
-          className="px-12 py-6 rounded-full text-4xl font-bold text-[#14213D] flex items-center gap-4 shadow-[0_0_30px_rgba(255,183,3,0.4)] hover:scale-105 transition-transform"
-          style={{ background: 'linear-gradient(135deg,#FFB703,#F4A261)' }}>
-          مڪمل ڪريو <ArrowRight className="w-8 h-8" />
+          className="px-8 py-4 md:px-12 md:py-6 rounded-full text-2xl md:text-4xl font-bold text-[#14213D] flex items-center gap-3 shadow-[0_0_30px_rgba(255,183,3,0.4)] active:scale-95 transition-transform"
+          style={{ background: 'linear-gradient(135deg,#FFB703,#F4A261)' }} dir="rtl">
+          مڪمل ڪريو <ArrowRight className="w-6 h-6 md:w-8 md:h-8" />
         </button>
       </div>
     );
@@ -152,13 +152,13 @@ export default function QuizSection({ data, onComplete }: { data: QuizData, onCo
       <div className="w-full rounded-3xl overflow-hidden border shadow-[0_0_60px_rgba(13,115,119,0.3)]"
         style={{ background: 'linear-gradient(160deg,#0D1B2A,#0a0a12)', borderColor: 'rgba(255,183,3,0.3)' }}>
         {/* Header */}
-        <div className="p-6 flex justify-between items-center border-b"
+        <div className="p-4 md:p-6 flex justify-between items-center border-b"
           style={{ background: 'linear-gradient(90deg,#0D7377,#14213D)', borderColor: 'rgba(255,183,3,0.3)' }}>
-          <h2 className="text-3xl font-bold text-[#FFB703]">
+          <h2 className="text-lg md:text-3xl font-bold text-[#FFB703]">
             {currentSection === 'tf' ? '✅ صحيح يا غلط' : currentSection === 'fib' ? '✏️ خالي جايون ڀريو' : '🏆 نتيجو'}
           </h2>
           {currentSection !== 'result' && (
-            <div className="text-2xl font-bold px-4 py-2 rounded-full text-[#14213D]"
+            <div className="text-lg md:text-2xl font-bold px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[#14213D]"
               style={{ background: 'linear-gradient(135deg,#FFB703,#F4A261)' }}>
               اسڪور: {score}
             </div>

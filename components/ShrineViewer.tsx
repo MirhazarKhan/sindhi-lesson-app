@@ -177,7 +177,7 @@ export default function ShrineViewer({ onComplete }: { onComplete: () => void })
                 </div>
 
                 {/* Canvas */}
-                <div className="relative flex-1" style={{ minHeight: fullscreen ? 'calc(100vh - 110px)' : 500 }}>
+                <div className="relative flex-1" style={{ minHeight: fullscreen ? 'calc(100vh - 110px)' : undefined, height: fullscreen ? undefined : 'min(500px, 60vh)' }}>
                     <Canvas shadows camera={{ position: [8, 12, 14], fov: 42 }}
                         gl={{ antialias: true, alpha: false }}
                         style={{ background: 'linear-gradient(180deg,#0a0510 0%,#100a00 100%)' }}>

@@ -155,31 +155,28 @@ export default function WordBreaker({ data, onComplete }: { data: VocabItem[], o
       <div className="w-full rounded-3xl overflow-hidden border shadow-[0_0_60px_rgba(13,115,119,0.3)]"
         style={{ background: 'linear-gradient(160deg,#0D1B2A,#0a0a12)', borderColor: 'rgba(255,183,3,0.3)' }}>
         {/* Header */}
-        <div className="p-6 flex justify-between items-center border-b"
+        <div className="p-4 md:p-6 flex justify-between items-center border-b"
           style={{ background: 'linear-gradient(90deg,#0D7377,#14213D)', borderColor: 'rgba(255,183,3,0.3)' }}>
-          <h2 className="text-3xl font-bold text-[#FFB703]">لفظ ٺاهيو (Make the Word)</h2>
-          <div className="text-xl font-bold px-4 py-2 rounded-full text-[#14213D]"
-            style={{ background: 'linear-gradient(135deg,#FFB703,#F4A261)' }}>
-            لفظ {currentIndex + 1} / {data.length}
+          <h2 className="text-lg md:text-3xl font-bold text-[#FFB703]">لفظ ٺاهيو</h2>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => playAudio(currentItem.word)}
+              className="flex items-center gap-1.5 px-3 py-2 md:px-6 md:py-3 rounded-full font-bold text-sm md:text-xl text-[#14213D]"
+              style={{ background: 'linear-gradient(135deg,#FFB703,#F4A261)' }}
+            >
+              <Volume2 className="w-4 h-4 md:w-6 md:h-6" />
+              <span className="hidden sm:inline">آواز ٻڌو</span>
+            </button>
+            <div className="text-sm md:text-xl font-bold px-3 py-1.5 rounded-full text-[#14213D]"
+              style={{ background: 'linear-gradient(135deg,#FFB703,#F4A261)' }}>
+              {currentIndex + 1}/{data.length}
+            </div>
           </div>
         </div>
 
         {/* Interactive Area */}
-        <div className="p-8 md:p-16 flex flex-col items-center justify-center min-h-[450px] relative">
-
-          {/* Audio Button */}
-          <div className="absolute top-8 right-8">
-            <button
-              onClick={() => playAudio(currentItem.word)}
-              className="flex items-center gap-2 px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform text-xl text-[#14213D] shadow-[0_0_20px_rgba(255,183,3,0.4)]"
-              style={{ background: 'linear-gradient(135deg,#FFB703,#F4A261)' }}
-            >
-              <Volume2 className="w-6 h-6" />
-              آواز ٻڌو
-            </button>
-          </div>
-
-          <div className="min-h-[200px] flex flex-col items-center justify-center w-full mt-12">
+        <div className="p-4 md:p-16 flex flex-col items-center justify-center min-h-[360px] md:min-h-[450px]">
+          <div className="min-h-[200px] flex flex-col items-center justify-center w-full">
             <AnimatePresence mode="wait">
               {isCompleted ? (
                 <motion.div
@@ -187,19 +184,19 @@ export default function WordBreaker({ data, onComplete }: { data: VocabItem[], o
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 1.2 }}
-                  className="flex flex-col items-center gap-8"
+                  className="flex flex-col items-center gap-6"
                 >
-                  <div className="text-8xl md:text-[150px] font-bold text-[#FFB703] drop-shadow-[0_0_20px_rgba(255,183,3,0.3)]">
+                  <div className="text-6xl md:text-[120px] font-bold text-[#FFB703]">
                     {currentItem.word}
                   </div>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-3 text-3xl font-bold px-8 py-4 rounded-full border"
+                    className="flex items-center gap-2 text-2xl md:text-3xl font-bold px-6 py-3 rounded-full border"
                     style={{ color: '#2DC653', background: 'rgba(45,198,83,0.1)', borderColor: 'rgba(45,198,83,0.4)' }}
                   >
-                    <CheckCircle2 className="w-10 h-10" />
-                    بهترين! (Excellent!)
+                    <CheckCircle2 className="w-7 h-7 md:w-10 md:h-10" />
+                    بهترين!
                   </motion.div>
                 </motion.div>
               ) : (
@@ -211,14 +208,12 @@ export default function WordBreaker({ data, onComplete }: { data: VocabItem[], o
                   className="flex flex-col items-center w-full"
                 >
                   {/* Slots Area */}
-                  <div className="flex flex-row items-center justify-center gap-4 md:gap-6 mb-12">
+                  <div className="flex flex-row flex-wrap items-center justify-center gap-2 md:gap-6 mb-6 md:mb-12">
                     {slots.map((slotItem, index) => (
                       <div
                         key={`slot-${index}`}
-                        ref={el => {
-                          if (el) slotRefs.current[index] = el;
-                        }}
-                        className="w-24 h-32 md:w-32 md:h-40 border-4 border-dashed rounded-2xl flex items-center justify-center"
+                        ref={el => { if (el) slotRefs.current[index] = el; }}
+                        className="w-16 h-20 md:w-28 md:h-36 border-4 border-dashed rounded-2xl flex items-center justify-center"
                         style={{ borderColor: 'rgba(255,183,3,0.3)', background: 'rgba(13,115,119,0.15)' }}
                       >
                         {slotItem && (
@@ -226,10 +221,9 @@ export default function WordBreaker({ data, onComplete }: { data: VocabItem[], o
                             layoutId={slotItem.id}
                             onClick={() => handleSlotItemClick(slotItem, index)}
                             onMouseEnter={() => handleHoverPlay(slotItem.letter)}
-                            className="w-full h-full text-6xl md:text-8xl font-bold rounded-2xl flex items-center justify-center cursor-pointer relative overflow-hidden group transition-colors"
+                            className="w-full h-full text-4xl md:text-7xl font-bold rounded-2xl flex items-center justify-center cursor-pointer relative overflow-hidden group transition-colors"
                             style={{ background: 'linear-gradient(135deg,#0D7377,#14213D)', border: '2px solid rgba(255,183,3,0.6)', color: '#FFB703' }}
                           >
-                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'rgba(255,183,3,0.1)' }} />
                             <span className="relative z-10">{slotItem.letter}</span>
                           </motion.div>
                         )}
@@ -238,7 +232,7 @@ export default function WordBreaker({ data, onComplete }: { data: VocabItem[], o
                   </div>
 
                   {/* Pool Area */}
-                  <div className="flex flex-row flex-wrap items-center justify-center gap-4 md:gap-6 min-h-[160px]">
+                  <div className="flex flex-row flex-wrap items-center justify-center gap-2 md:gap-6 min-h-[100px] md:min-h-[160px]">
                     {pool.map((item) => (
                       <motion.div
                         key={item.id}
@@ -250,16 +244,15 @@ export default function WordBreaker({ data, onComplete }: { data: VocabItem[], o
                         onClick={() => handlePoolItemClick(item)}
                         onMouseEnter={() => handleHoverPlay(item.letter)}
                         whileDrag={{ scale: 1.1, zIndex: 50 }}
-                        className="w-24 h-32 md:w-32 md:h-40 text-6xl md:text-8xl font-bold rounded-2xl flex items-center justify-center cursor-grab active:cursor-grabbing relative overflow-hidden group z-10 transition-colors"
+                        className="w-16 h-20 md:w-28 md:h-36 text-4xl md:text-7xl font-bold rounded-2xl flex items-center justify-center cursor-grab active:cursor-grabbing relative overflow-hidden z-10"
                         style={{ background: 'linear-gradient(135deg,#C1121F,#6A0572)', border: '2px solid rgba(255,183,3,0.5)', color: '#FFB703' }}
                       >
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'rgba(255,183,3,0.1)' }} />
                         <span className="relative z-10">{item.letter}</span>
                       </motion.div>
                     ))}
                   </div>
 
-                  <p className="text-white/40 text-2xl font-bold animate-pulse mt-8">
+                  <p className="text-white/40 text-sm md:text-xl font-bold animate-pulse mt-4 md:mt-8 text-center px-4">
                     اکرن کي ڇڪي خالي جاين تي رکو (يا ڪلڪ ڪريو)
                   </p>
                 </motion.div>
@@ -269,25 +262,25 @@ export default function WordBreaker({ data, onComplete }: { data: VocabItem[], o
         </div>
 
         {/* Navigation */}
-        <div className="p-6 flex justify-between items-center border-t"
+        <div className="p-4 md:p-6 flex justify-between items-center border-t"
           style={{ background: 'rgba(13,115,119,0.15)', borderColor: 'rgba(255,183,3,0.2)' }}>
           <button onClick={handleNext}
             disabled={!isCompleted && currentIndex !== data.length - 1}
-            className="flex items-center gap-2 px-8 py-4 rounded-full font-bold text-2xl transition-all"
+            className="flex items-center gap-2 px-5 py-3 md:px-8 md:py-4 rounded-full font-bold text-lg md:text-2xl transition-all"
             style={!isCompleted && currentIndex !== data.length - 1
               ? { color: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'not-allowed' }
               : { background: 'linear-gradient(135deg,#FFB703,#F4A261)', color: '#14213D', border: 'none' }}
           >
             {currentIndex === data.length - 1 ? 'مڪمل' : 'اڳيون'}
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5 md:w-6 md:h-6" />
           </button>
           <button onClick={handlePrev} disabled={currentIndex === 0}
-            className="flex items-center gap-2 px-8 py-4 rounded-full font-bold text-2xl transition-all border"
+            className="flex items-center gap-2 px-5 py-3 md:px-8 md:py-4 rounded-full font-bold text-lg md:text-2xl transition-all border"
             style={currentIndex === 0
               ? { color: 'rgba(255,255,255,0.2)', borderColor: 'rgba(255,255,255,0.1)', cursor: 'not-allowed' }
               : { color: '#FFB703', borderColor: 'rgba(255,183,3,0.4)', background: 'rgba(13,115,119,0.2)' }}
           >
-            <ArrowRight className="w-6 h-6" />
+            <ArrowRight className="w-5 h-5 md:w-6 md:h-6" />
             پوئتي
           </button>
         </div>

@@ -125,32 +125,32 @@ function HeroMenu({ currentIndex, onSelect, onNext, onPrev }: {
             <AjrakBorder />
 
             {/* Hero body */}
-            <div className="relative z-20 flex-1 flex flex-col md:flex-row items-center justify-center gap-8 px-6 md:px-16 py-8" dir="rtl">
+            <div className="relative z-20 flex-1 flex flex-col md:flex-row items-center justify-center gap-6 px-5 md:px-16 py-4 md:py-8" dir="rtl">
                 {/* Title side */}
-                <div className="flex-1 flex flex-col justify-center max-w-xl">
+                <div className="flex-1 flex flex-col justify-center max-w-xl w-full">
                     <AnimatePresence mode="wait">
                         <motion.div key={`hero-${currentIndex}`}
                             initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
                             transition={{ duration: 0.35 }}
                         >
-                            <div className="text-6xl mb-3">{item.badge}</div>
-                            <h1 className="text-[15vw] md:text-[7vw] font-black leading-none text-white drop-shadow-2xl mb-4">{item.title}</h1>
-                            <p className="text-2xl md:text-3xl text-white/60 font-bold leading-relaxed mb-8">{item.desc}</p>
+                            <div className="text-4xl md:text-6xl mb-2">{item.badge}</div>
+                            <h1 className="text-[18vw] md:text-[7vw] font-black leading-none text-white drop-shadow-2xl mb-3">{item.title}</h1>
+                            <p className="text-base md:text-3xl text-white/60 font-bold leading-relaxed mb-5 md:mb-8">{item.desc}</p>
                             <motion.button
                                 whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                                 onClick={() => onSelect(item.id)}
-                                className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl font-black text-2xl md:text-3xl text-[#14213D] shadow-[0_8px_30px_rgba(255,183,3,0.4)]"
+                                className="inline-flex items-center gap-2 px-7 py-4 md:px-10 md:py-5 rounded-2xl font-black text-xl md:text-3xl text-[#14213D] shadow-[0_8px_30px_rgba(255,183,3,0.4)]"
                                 style={{ background: 'linear-gradient(135deg,#FFB703 0%,#F4A261 100%)' }}
                             >
-                                <Sparkles className="w-7 h-7" />
+                                <Sparkles className="w-5 h-5 md:w-7 md:h-7" />
                                 شروع ڪريو
                             </motion.button>
                         </motion.div>
                     </AnimatePresence>
                 </div>
 
-                {/* Card side */}
-                <div className="flex-1 flex items-center justify-center relative min-h-[340px] w-full max-w-md">
+                {/* Card side — hidden on mobile to save space */}
+                <div className="hidden md:flex flex-1 items-center justify-center relative min-h-[340px] w-full max-w-md">
                     {[-1, 1].map(offset => {
                         const idx = (currentIndex + offset + MENU.length) % MENU.length;
                         return (
@@ -171,8 +171,6 @@ function HeroMenu({ currentIndex, onSelect, onNext, onPrev }: {
                             className={`relative w-64 h-72 md:w-72 md:h-80 rounded-3xl bg-gradient-to-br ${item.bg} flex flex-col items-center justify-center gap-5 shadow-[0_20px_60px_rgba(0,0,0,0.5)] border border-white/10 overflow-hidden`}
                         >
                             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-                            <div className="absolute top-0 right-0 w-20 h-20 opacity-20" style={{ background: 'radial-gradient(circle at top right,#FFB703,transparent)' }} />
-                            <div className="absolute bottom-0 left-0 w-20 h-20 opacity-20" style={{ background: 'radial-gradient(circle at bottom left,#C1121F,transparent)' }} />
                             <span className="text-6xl relative z-10">{item.badge}</span>
                             <span className="text-4xl md:text-5xl font-black text-white relative z-10 drop-shadow-lg">{item.title}</span>
                             <span className="text-sm text-white/60 relative z-10 px-4 text-center">{item.desc}</span>
@@ -182,26 +180,27 @@ function HeroMenu({ currentIndex, onSelect, onNext, onPrev }: {
             </div>
 
             {/* Bottom pills + nav */}
-            <div className="relative z-20 pb-8 px-6 flex flex-col items-center gap-5">
+            <div className="relative z-20 pb-6 px-4 flex flex-col items-center gap-4">
                 <AjrakBorder />
-                <div className="flex flex-wrap justify-center gap-3 mt-3" dir="rtl">
+                <div className="flex overflow-x-auto gap-2 mt-2 w-full pb-1 justify-start md:justify-center md:flex-wrap" dir="rtl"
+                    style={{ scrollbarWidth: 'none' }}>
                     {MENU.map((m, i) => (
-                        <motion.button key={m.id} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}
+                        <motion.button key={m.id} whileTap={{ scale: 0.95 }}
                             onClick={() => onSelect(m.id)}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-lg border transition-all
+                            className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-base border transition-all shrink-0
                 ${i === currentIndex
-                                    ? 'border-[#FFB703] text-[#14213D] shadow-[0_0_20px_rgba(255,183,3,0.4)]'
-                                    : 'border-white/20 text-white/70 hover:border-[#FFB703]/60 hover:text-white bg-white/5'}`}
+                                    ? 'border-[#FFB703] text-[#14213D]'
+                                    : 'border-white/20 text-white/70 bg-white/5'}`}
                             style={i === currentIndex ? { background: 'linear-gradient(135deg,#FFB703,#F4A261)' } : {}}
                         >
                             <span>{m.badge}</span><span>{m.title}</span>
                         </motion.button>
                     ))}
                 </div>
-                <div className="flex gap-4" dir="ltr">
-                    {[{ fn: onNext, icon: <ChevronLeft className="w-6 h-6" /> }, { fn: onPrev, icon: <ChevronRight className="w-6 h-6" /> }].map((b, i) => (
-                        <motion.button key={i} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={b.fn}
-                            className="p-4 rounded-full border border-white/20 text-white hover:border-[#FFB703] hover:text-[#FFB703] transition-colors bg-white/5 backdrop-blur-sm">
+                <div className="flex gap-3" dir="ltr">
+                    {[{ fn: onNext, icon: <ChevronLeft className="w-5 h-5" /> }, { fn: onPrev, icon: <ChevronRight className="w-5 h-5" /> }].map((b, i) => (
+                        <motion.button key={i} whileTap={{ scale: 0.9 }} onClick={b.fn}
+                            className="p-3 rounded-full border border-white/20 text-white transition-colors bg-white/5 backdrop-blur-sm">
                             {b.icon}
                         </motion.button>
                     ))}
@@ -351,16 +350,16 @@ export default function LessonModule() {
                         <div className="relative z-10 flex flex-col items-center gap-6 px-8 text-center" dir="rtl">
                             <motion.div initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 1 }}
-                                className="text-5xl md:text-7xl lg:text-[6.5rem] font-black leading-snug text-white drop-shadow-2xl">
+                                className="text-4xl md:text-7xl lg:text-[6.5rem] font-black leading-snug text-white drop-shadow-2xl">
                                 ڪانه پُڇي ٿو ذاتِ،
                             </motion.div>
                             <motion.div initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 1, delay: 1 }}
-                                className="text-5xl md:text-7xl lg:text-[6.5rem] font-black leading-snug gold-shimmer drop-shadow-2xl">
+                                className="text-4xl md:text-7xl lg:text-[6.5rem] font-black leading-snug gold-shimmer drop-shadow-2xl">
                                 جيڪي آيا سي اَگهيا۔
                             </motion.div>
                             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.2 }}
-                                className="text-xl md:text-2xl text-white/50 mt-4">— شاهه عبداللطيف ڀٽائي</motion.p>
+                                className="text-base md:text-2xl text-white/50 mt-2">— شاهه عبداللطيف ڀٽائي</motion.p>
                         </div>
                     </motion.div>
                 )}

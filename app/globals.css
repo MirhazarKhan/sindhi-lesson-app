@@ -111,3 +111,14 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
+
+/* Prevent pull-to-refresh interfering with drag on mobile */
+html,
+body {
+  overscroll-behavior: none;
+}
+
+/* Ensure draggable letter tiles work on touch */
+[data-framer-drag] {
+  touch-action: none;
+}
