@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@theme {
+  --font-lateef: var(--font-lateef), serif;
+  --font-inter: var(--font-inter), sans-serif;
+
+  /* Sindhi cultural palette */
+  --color-ajrak-teal: #0D7377;
+  --color-ajrak-deep: #14213D;
+  --color-saffron: #F4A261;
+  --color-sindhi-red: #C1121F;
+  --color-sindhi-pink: #E040FB;
+  --color-sindhi-gold: #FFB703;
+  --color-emerald: #2DC653;
+  --color-ivory: #FFF8EE;
+}
+
+/* Ajrak-inspired tile pattern overlay */
+.ajrak-pattern {
+  background-image:
+    repeating-linear-gradient(45deg,
+      rgba(255, 183, 3, 0.06) 0px,
+      rgba(255, 183, 3, 0.06) 2px,
+      transparent 2px,
+      transparent 14px),
+    repeating-linear-gradient(-45deg,
+      rgba(193, 18, 31, 0.05) 0px,
+      rgba(193, 18, 31, 0.05) 2px,
+      transparent 2px,
+      transparent 14px);
+}
+
+/* Floating lantern glow pulse */
+@keyframes lantern-glow {
+
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+.lantern-glow {
+  animation: lantern-glow 3s ease-in-out infinite;
+}
+
+/* Shimmer on gold text */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.gold-shimmer {
+  background: linear-gradient(90deg, #FFB703 0%, #fff8c0 40%, #F4A261 60%, #FFB703 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+/* Gentle float */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #FFB703;
+  border-radius: 3px;
+}
+
+/* Page turn 3D support */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+/* Prevent layout flash during page turn */
+[data-page-turn] {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}

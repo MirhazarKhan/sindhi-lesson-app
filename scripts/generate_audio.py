@@ -1,0 +1,161 @@
+"""
+Generate static Sindhi TTS audio files using UpliftAI neural voice.
+Run once — files saved to public/audio/ and reused forever.
+
+Usage: python scripts/generate_audio.py
+"""
+
+import os
+import json
+import hashlib
+import requests
+import time
+
+API_KEY = 'sk_api_b1c965d35f5675c0501515233f02e590437c46334e4c69a759aa47515982e7da'
+ENDPOINT = 'https://api.upliftai.org/v1/synthesis/text-to-speech'
+VOICE_ID = 'v_sd0kl3m9'
+
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'public', 'audio')
+LESSON_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'lesson.json')
+
+SINDHI_LETTER_NAMES = {
+    "ا": "الف", "ب": "بَي", "ٻ": "ٻَي", "ڀ": "ڀَي",
+    "ت": "تَي", "ٿ": "ٿَي", "ٽ": "ٽَي", "ٺ": "ٺَي",
+    "ث": "ثَي", "پ": "پَي", "ج": "جيم", "ڄ": "ڄَي",
+    "جھ": "جھَي", "ڃ": "ڃَي", "چ": "چَي", "ڇ": "ڇَي",
+    "ح": "حَي", "خ": "خَي", "د": "دال", "ڌ": "ڌال",
+    "ڏ": "ڏال", "ڊ": "ڊال", "ڍ": "ڍال", "ذ": "ذال",
+    "ر": "رَي", "ڙ": "ڙَي", "ز": "زَي", "س": "سين",
+    "ش": "شين", "ص": "صاد", "ض": "ضاد", "ط": "طوي",
+    "ظ": "ظوي", "ع": "عين", "غ": "غين", "ف": "فَي",
+    "ڦ": "ڦَي", "ق": "قاف", "ڪ": "ڪاف", "ک": "کَي",
+    "گ": "گاف", "ڳ": "ڳَي", "گھ": "گھَي", "ڱ": "ڱَي",
+    "ل": "لام", "م": "ميم", "ن": "نون", "ڻ": "ڻون",
+    "و": "واؤ", "ه": "هَي", "ء": "همزو", "ي": "يَي",
+    "ئ": "همزو", "ے": "وڏي يَي",
+}
+
+
+def text_to_filename(text: str) -> str:
+    return hashlib.sha1(text.encode('utf-8')).hexdigest() + '.mp3'
+
+
+def collect_texts(lesson: dict) -> list:
+    texts = set()
+
+    # Splash quote
+    texts.add('ڪانه پُڇي ٿو ذاتِ، جيڪي آيا سي اَگهيا')
+
+    # Intro slides — full paragraph text
+    for slide in lesson.get('introSlides', []):
+        texts.add(slide['text'])
+
+    # Vocabulary — word + each letter name
+    for vocab in lesson.get('vocabularyGame', []):
+        texts.add(vocab['word'])
+        for letter in vocab['letters']:
+            name = SINDHI_LETTER_NAMES.get(letter, letter)
+            texts.add(name)
+            texts.add(letter)  # also the raw letter itself
+
+    # Quiz true/false questions
+    for q in lesson.get('quiz', {}).get('trueFalse', []):
+        texts.add(q['question'])
+
+    # Quiz fill-in-the-blanks questions + all options
+    for q in lesson.get('quiz', {}).get('fillInTheBlanks', []):
+        texts.add(q['question'])
+        for opt in q.get('options', []):
+            texts.add(opt)
+        texts.add(q['answer'])
+
+    # UI feedback strings
+    texts.update([
+        'بهترين',
+        'صحيح جواب',
+        'غلط جواب',
+        'شاهه عبداللطيف ڀٽائي',
+        'سنڌ جو عظيم صوفي شاعر',
+    ])
+
+    return sorted(texts)
+
+
+def fetch_audio(text: str) -> bytes | None:
+    try:
+        res = requests.post(
+            ENDPOINT,
+            headers={
+                'Authorization': f'Bearer {API_KEY}',
+                'Content-Type': 'application/json',
+            },
+            json={
+                'voiceId': VOICE_ID,
+                'text': text,
+                'outputFormat': 'MP3_22050_128',
+            },
+            timeout=30,
+        )
+        if res.status_code == 200:
+            return res.content
+        elif res.status_code == 402:
+            print('\n  [FATAL] No balance on UpliftAI account. Top up at https://upliftai.org')
+            exit(1)
+        else:
+            print(f'  [err]  HTTP {res.status_code} — {res.text[:80]}')
+            return None
+    except Exception as e:
+        print(f'  [err]  {e}')
+        return None
+
+
+def generate(texts: list):
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    manifest = {}
+    ok = 0
+    skipped = 0
+    failed = 0
+
+    for i, text in enumerate(texts, 1):
+        filename = text_to_filename(text)
+        filepath = os.path.join(OUTPUT_DIR, filename)
+        manifest[text] = filename
+
+        if os.path.exists(filepath):
+            print(f'  [{i:02}/{len(texts)}] skip  {text[:50]}')
+            skipped += 1
+            continue
+
+        print(f'  [{i:02}/{len(texts)}] fetch {text[:50]}', end=' ', flush=True)
+        audio = fetch_audio(text)
+
+        if audio:
+            with open(filepath, 'wb') as f:
+                f.write(audio)
+            print('✓')
+            ok += 1
+        else:
+            print('✗')
+            failed += 1
+
+        # Small delay to be polite to the API
+        time.sleep(0.3)
+
+    # Write manifest
+    manifest_path = os.path.join(OUTPUT_DIR, 'manifest.json')
+    with open(manifest_path, 'w', encoding='utf-8') as f:
+        json.dump(manifest, f, ensure_ascii=False, indent=2)
+
+    print(f'\n{"="*50}')
+    print(f'Done: {ok} downloaded, {skipped} skipped, {failed} failed')
+    print(f'Manifest: {manifest_path}')
+    print(f'Total files: {len([f for f in os.listdir(OUTPUT_DIR) if f.endswith(".mp3")])} mp3s in public/audio/')
+
+
+if __name__ == '__main__':
+    with open(LESSON_FILE, encoding='utf-8') as f:
+        lesson = json.load(f)
+
+    texts = collect_texts(lesson)
+    print(f'Collecting {len(texts)} unique texts to synthesize...\n')
+    generate(texts)
