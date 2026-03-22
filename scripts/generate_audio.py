@@ -1,5 +1,6 @@
 """
-Generate static Sindhi TTS audio files using UpliftAI neural voice.
+Generate static Sindhi TTS audio files using Azure Cognitive Services.
+Voice: ur-PK-AsadNeural (natural Urdu/Sindhi, multilingual neural)
 Run once — files saved to public/audio/ and reused forever.
 
 Usage: python scripts/generate_audio.py
@@ -11,9 +12,10 @@ import hashlib
 import requests
 import time
 
-API_KEY = 'sk_api_b1c965d35f5675c0501515233f02e590437c46334e4c69a759aa47515982e7da'
-ENDPOINT = 'https://api.upliftai.org/v1/synthesis/text-to-speech'
-VOICE_ID = 'v_sd0kl3m9'
+AZURE_KEY = os.environ.get('AZURE_SPEECH_KEY', '')
+AZURE_REGION = os.environ.get('AZURE_SPEECH_REGION', 'eastus')
+ENDPOINT = f'https://{AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1'
+VOICE = 'ur-PK-AsadNeural'
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'public', 'audio')
 LESSON_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'lesson.json')
@@ -40,36 +42,39 @@ def text_to_filename(text: str) -> str:
     return hashlib.sha1(text.encode('utf-8')).hexdigest() + '.mp3'
 
 
+def make_ssml(text: str) -> str:
+    safe = text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    return f"""<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="ur-PK">
+  <voice name="{VOICE}">
+    <prosody rate="-10%" pitch="-2st">{safe}</prosody>
+  </voice>
+</speak>"""
+
+
 def collect_texts(lesson: dict) -> list:
     texts = set()
 
-    # Splash quote
     texts.add('ڪانه پُڇي ٿو ذاتِ، جيڪي آيا سي اَگهيا')
 
-    # Intro slides — full paragraph text
     for slide in lesson.get('introSlides', []):
         texts.add(slide['text'])
 
-    # Vocabulary — word + each letter name
     for vocab in lesson.get('vocabularyGame', []):
         texts.add(vocab['word'])
         for letter in vocab['letters']:
             name = SINDHI_LETTER_NAMES.get(letter, letter)
             texts.add(name)
-            texts.add(letter)  # also the raw letter itself
+            texts.add(letter)
 
-    # Quiz true/false questions
     for q in lesson.get('quiz', {}).get('trueFalse', []):
         texts.add(q['question'])
 
-    # Quiz fill-in-the-blanks questions + all options
     for q in lesson.get('quiz', {}).get('fillInTheBlanks', []):
         texts.add(q['question'])
         for opt in q.get('options', []):
             texts.add(opt)
         texts.add(q['answer'])
 
-    # UI feedback strings
     texts.update([
         'بهترين',
         'صحيح جواب',
@@ -86,23 +91,21 @@ def fetch_audio(text: str) -> bytes | None:
         res = requests.post(
             ENDPOINT,
             headers={
-                'Authorization': f'Bearer {API_KEY}',
-                'Content-Type': 'application/json',
+                'Ocp-Apim-Subscription-Key': AZURE_KEY,
+                'Content-Type': 'application/ssml+xml',
+                'X-Microsoft-OutputFormat': 'audio-16khz-32kbitrate-mono-mp3',
+                'User-Agent': 'sindhi-lesson-app',
             },
-            json={
-                'voiceId': VOICE_ID,
-                'text': text,
-                'outputFormat': 'MP3_22050_128',
-            },
+            data=make_ssml(text).encode('utf-8'),
             timeout=30,
         )
         if res.status_code == 200:
             return res.content
-        elif res.status_code == 402:
-            print('\n  [FATAL] No balance on UpliftAI account. Top up at https://upliftai.org')
+        elif res.status_code in (401, 403):
+            print('\n  [FATAL] Azure key invalid or unauthorized.')
             exit(1)
         else:
-            print(f'  [err]  HTTP {res.status_code} — {res.text[:80]}')
+            print(f'  [err]  HTTP {res.status_code} — {res.text[:120]}')
             return None
     except Exception as e:
         print(f'  [err]  {e}')
@@ -112,9 +115,7 @@ def fetch_audio(text: str) -> bytes | None:
 def generate(texts: list):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     manifest = {}
-    ok = 0
-    skipped = 0
-    failed = 0
+    ok = skipped = failed = 0
 
     for i, text in enumerate(texts, 1):
         filename = text_to_filename(text)
@@ -122,11 +123,11 @@ def generate(texts: list):
         manifest[text] = filename
 
         if os.path.exists(filepath):
-            print(f'  [{i:02}/{len(texts)}] skip  {text[:50]}')
+            print(f'  [{i:02}/{len(texts)}] skip  {text[:60]}')
             skipped += 1
             continue
 
-        print(f'  [{i:02}/{len(texts)}] fetch {text[:50]}', end=' ', flush=True)
+        print(f'  [{i:02}/{len(texts)}] fetch {text[:60]}', end=' ', flush=True)
         audio = fetch_audio(text)
 
         if audio:
@@ -138,10 +139,8 @@ def generate(texts: list):
             print('✗')
             failed += 1
 
-        # Small delay to be polite to the API
-        time.sleep(0.3)
+        time.sleep(0.15)
 
-    # Write manifest
     manifest_path = os.path.join(OUTPUT_DIR, 'manifest.json')
     with open(manifest_path, 'w', encoding='utf-8') as f:
         json.dump(manifest, f, ensure_ascii=False, indent=2)

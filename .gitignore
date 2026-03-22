@@ -8,3 +8,5 @@ coverage/
 
 # Root-level duplicate GLB (real one lives in public/)
 /ShahAbdulLatifShrine.glb
+
+.env.local

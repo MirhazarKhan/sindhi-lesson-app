@@ -1,46 +1,50 @@
 import { NextResponse } from 'next/server';
 
-const UPLIFT_API_KEY = 'sk_api_b1c965d35f5675c0501515233f02e590437c46334e4c69a759aa47515982e7da';
-const UPLIFT_ENDPOINT = 'https://api.upliftai.org/v1/synthesis/text-to-speech';
-const SINDHI_VOICE_ID = 'v_sd0kl3m9';
+const AZURE_KEY = process.env.AZURE_SPEECH_KEY ?? '';
+const AZURE_REGION = process.env.AZURE_SPEECH_REGION ?? 'eastus';
+const AZURE_ENDPOINT = `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
+
+// ur-PK-AsadNeural — natural Urdu/Sindhi male voice
+const VOICE = 'ur-PK-AsadNeural';
 
 export async function POST(req: Request) {
   try {
     const { text } = await req.json();
+    if (!text) return NextResponse.json({ error: 'Missing text' }, { status: 400 });
 
-    if (!text) {
-      return NextResponse.json({ error: 'Missing text' }, { status: 400 });
-    }
+    const ssml = `
+      <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="ur-PK">
+        <voice name="${VOICE}">
+          <prosody rate="-10%" pitch="-2st">
+            ${text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+          </prosody>
+        </voice>
+      </speak>`.trim();
 
-    const upliftRes = await fetch(UPLIFT_ENDPOINT, {
+    const res = await fetch(AZURE_ENDPOINT, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${UPLIFT_API_KEY}`,
-        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': AZURE_KEY,
+        'Content-Type': 'application/ssml+xml',
+        'X-Microsoft-OutputFormat': 'audio-16khz-32kbitrate-mono-mp3',
+        'User-Agent': 'sindhi-lesson-app',
       },
-      body: JSON.stringify({
-        voiceId: SINDHI_VOICE_ID,
-        text,
-        outputFormat: 'MP3_22050_128',
-      }),
+      body: ssml,
     });
 
-    if (upliftRes.ok) {
-      const blob = await upliftRes.blob();
+    if (res.ok) {
+      const blob = await res.blob();
       return new NextResponse(blob, {
-        headers: { 'Content-Type': upliftRes.headers.get('Content-Type') || 'audio/mpeg' },
+        headers: { 'Content-Type': 'audio/mpeg' },
       });
     }
 
-    if (upliftRes.status === 402) {
-      return NextResponse.json(
-        { error: 'NO_BALANCE', message: 'UpliftAI account needs top-up at https://upliftai.org' },
-        { status: 402 }
-      );
+    if (res.status === 401 || res.status === 403) {
+      return NextResponse.json({ error: 'NO_BALANCE' }, { status: 402 });
     }
 
-    const err = await upliftRes.text();
-    console.error('[TTS] UpliftAI error', upliftRes.status, err);
+    const err = await res.text();
+    console.error('[TTS] Azure error', res.status, err);
     return NextResponse.json({ error: 'TTS provider error' }, { status: 502 });
 
   } catch (error) {
