@@ -29,9 +29,27 @@ LONG_PHRASES = [
     'سندس شاعري ۾ محبت، امن، سچائي، ۽ انسانيت جا سبق آهن. شاهه صاحب جي رسالي کي شاهه جو رسالو چيو وڃي ٿو، جيڪو سنڌي ادب جو خزانو آهي.',
 ]
 
+BATCH2_PHRASES = [
+    'بهترين',
+    'جنگجو',
+    'جو',
+    'رومانوي',
+    'سيوهڻ',
+    'سنڌ',
+    'شاعر',
+    'شاهه',
+    'صوفي',
+    'هو',
+    'وڏو',
+    'ڀٽائي',
+    'ڀٽ شاهه',
+    'ڪراچي',
+]
+
 FILES = {
     'quiz_sentences.wav': QUIZ_PHRASES,
     'long_sentence.wav': LONG_PHRASES,
+    'batch_2_short_phrases.wav': BATCH2_PHRASES,
 }
 
 def detect_silence(wavfile, noise_db=-35, duration=0.5):
@@ -68,7 +86,7 @@ def split_file(wavfile, phrases):
 
     # Try different thresholds until chunk count matches
     silences = []
-    for noise_db, min_dur in [(-35, 0.5), (-38, 0.4), (-32, 0.4), (-30, 0.3)]:
+    for noise_db, min_dur in [(-30, 0.3), (-35, 0.5), (-38, 0.4), (-32, 0.4), (-25, 0.3)]:
         silences = detect_silence(wavfile, noise_db, min_dur)
         # Speech segments = gaps between silences
         print(f'  noise={noise_db}dB dur={min_dur}s -> {len(silences)} silence regions')
