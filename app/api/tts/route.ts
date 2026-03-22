@@ -4,8 +4,8 @@ const AZURE_KEY = process.env.AZURE_SPEECH_KEY ?? '';
 const AZURE_REGION = process.env.AZURE_SPEECH_REGION ?? 'eastus';
 const AZURE_ENDPOINT = `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
 
-// ur-PK-AsadNeural — natural Urdu/Sindhi male voice
-const VOICE = 'ur-PK-AsadNeural';
+// ur-PK-UzmaNeural — lighter female Urdu voice
+const VOICE = 'ur-PK-UzmaNeural';
 
 export async function POST(req: Request) {
   try {
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     const ssml = `
       <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="ur-PK">
         <voice name="${VOICE}">
-          <prosody rate="-10%" pitch="-2st">
+          <prosody rate="-5%" pitch="+2st" volume="+10%">
             ${text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
           </prosody>
         </voice>

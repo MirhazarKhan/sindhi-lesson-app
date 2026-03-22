@@ -15,7 +15,7 @@ import time
 AZURE_KEY = os.environ.get('AZURE_SPEECH_KEY', '')
 AZURE_REGION = os.environ.get('AZURE_SPEECH_REGION', 'eastus')
 ENDPOINT = f'https://{AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1'
-VOICE = 'ur-PK-AsadNeural'
+VOICE = 'ur-PK-UzmaNeural'
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'public', 'audio')
 LESSON_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'lesson.json')
@@ -46,7 +46,7 @@ def make_ssml(text: str) -> str:
     safe = text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
     return f"""<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="ur-PK">
   <voice name="{VOICE}">
-    <prosody rate="-10%" pitch="-2st">{safe}</prosody>
+    <prosody rate="-5%" pitch="+2st" volume="+10%">{safe}</prosody>
   </voice>
 </speak>"""
 
