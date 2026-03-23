@@ -61,10 +61,8 @@ async function loadManifest(): Promise<Record<string, string>> {
 function notifyNoBalance() {
   if (noBalanceNotified) return;
   noBalanceNotified = true;
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('tts:no-balance'));
-  }
-  console.warn('[TTS] UpliftAI balance exhausted. Visit https://upliftai.org to top up.');
+  // All lesson audio is served from static files — live API is only a fallback.
+  console.warn('[TTS] Live API unavailable. All lesson audio is served from static files.');
 }
 
 async function fetchTTS(text: string): Promise<Blob | null> {
