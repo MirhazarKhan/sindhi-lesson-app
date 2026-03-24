@@ -133,7 +133,10 @@ export default function WordBreaker({ data, onComplete }: { data: VocabItem[], o
                       className="rounded-2xl flex items-center justify-center"
                       style={{ width: 64, height: 80, background: BG, boxShadow: 'inset 4px 4px 10px rgba(0,0,0,0.6), inset -3px -3px 7px rgba(255,255,255,0.03)', border: `1px dashed rgba(212,160,23,0.2)` }}>
                       {slotItem && (
-                        <motion.div layoutId={slotItem.id}
+                        <motion.div
+                          key={slotItem.id}
+                          initial={{ scale: 0.6, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
                           onClick={() => { handleSlotItemClick(slotItem, index); playSindhiAudio(slotItem.letter); }}
                           className="w-full h-full text-3xl md:text-5xl font-bold rounded-2xl flex items-center justify-center cursor-pointer nm-raised"
                           style={{ background: BG_LIGHT, color: GOLD, border: `1px solid rgba(212,160,23,0.3)` }}>
@@ -147,7 +150,9 @@ export default function WordBreaker({ data, onComplete }: { data: VocabItem[], o
                 {/* Pool — raised tiles */}
                 <div className="flex flex-row flex-wrap items-center justify-center gap-2 md:gap-5 min-h-[90px] md:min-h-[140px]">
                   {pool.map((item) => (
-                    <motion.div key={item.id} layoutId={item.id}
+                    <motion.div key={item.id}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
                       drag dragSnapToOrigin
                       onDragStart={handleDragStart}
                       onDragEnd={(e, info) => handleDragEnd(e, info, item)}
