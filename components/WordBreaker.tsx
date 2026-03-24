@@ -23,7 +23,6 @@ export default function WordBreaker({ data, onComplete }: { data: VocabItem[], o
   const [isCompleted, setIsCompleted] = useState(false);
   const isDraggingRef = useRef(false);
   const slotRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentItem = data[currentIndex];
 
   useEffect(() => {
@@ -48,13 +47,7 @@ export default function WordBreaker({ data, onComplete }: { data: VocabItem[], o
     }
   }, [slots, currentItem]);
 
-  const handleHoverPlay = (text: string) => {
-    if (isDraggingRef.current) return;
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    hoverTimeoutRef.current = setTimeout(() => { if (!isDraggingRef.current) playSindhiAudio(text); }, 80);
-  };
-
-  const handleDragStart = () => { isDraggingRef.current = true; if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current); };
+  const handleDragStart = () => { isDraggingRef.current = true; };
 
   const handleDragEnd = (_e: any, info: any, item: LetterItem) => {
     isDraggingRef.current = false;
@@ -141,8 +134,7 @@ export default function WordBreaker({ data, onComplete }: { data: VocabItem[], o
                       style={{ width: 64, height: 80, background: BG, boxShadow: 'inset 4px 4px 10px rgba(0,0,0,0.6), inset -3px -3px 7px rgba(255,255,255,0.03)', border: `1px dashed rgba(212,160,23,0.2)` }}>
                       {slotItem && (
                         <motion.div layoutId={slotItem.id}
-                          onClick={() => handleSlotItemClick(slotItem, index)}
-                          onMouseEnter={() => handleHoverPlay(slotItem.letter)}
+                          onClick={() => { handleSlotItemClick(slotItem, index); playSindhiAudio(slotItem.letter); }}
                           className="w-full h-full text-3xl md:text-5xl font-bold rounded-2xl flex items-center justify-center cursor-pointer nm-raised"
                           style={{ background: BG_LIGHT, color: GOLD, border: `1px solid rgba(212,160,23,0.3)` }}>
                           {slotItem.letter}
@@ -159,8 +151,7 @@ export default function WordBreaker({ data, onComplete }: { data: VocabItem[], o
                       drag dragSnapToOrigin
                       onDragStart={handleDragStart}
                       onDragEnd={(e, info) => handleDragEnd(e, info, item)}
-                      onClick={() => handlePoolItemClick(item)}
-                      onMouseEnter={() => handleHoverPlay(item.letter)}
+                      onClick={() => { handlePoolItemClick(item); playSindhiAudio(item.letter); }}
                       whileDrag={{ scale: 1.12, zIndex: 50 }}
                       className="text-3xl md:text-5xl font-bold rounded-2xl flex items-center justify-center cursor-grab active:cursor-grabbing nm-press"
                       style={{ width: 64, height: 80, background: BG_LIGHT, color: IVORY, boxShadow: `6px 6px 16px rgba(0,0,0,0.6), -3px -3px 10px rgba(255,255,255,0.04), 0 0 12px ${CRIMSON}22`, border: `1px solid rgba(193,18,31,0.25)` }}>
