@@ -80,7 +80,7 @@ function HeroMenu({ currentIndex, onSelect, onNext, onPrev }: {
                     <span className="text-2xl">🕌</span>
                     <div dir="rtl">
                         <div className="font-black text-lg leading-none" style={{ color: GOLD }}>سنڌي سبق</div>
-                        <div className="text-xs opacity-40" style={{ color: IVORY }}>شاهه عبداللطيف ڀٽائي</div>
+                        <div className="text-sm opacity-40" style={{ color: IVORY }}>شاهه عبداللطيف ڀٽائي</div>
                     </div>
                 </div>
                 <div className="flex gap-2" dir="ltr">
@@ -146,7 +146,7 @@ function HeroMenu({ currentIndex, onSelect, onNext, onPrev }: {
                 <div className="flex overflow-x-auto gap-2 mt-3 w-full pb-1 justify-start md:justify-center" dir="rtl" style={{ scrollbarWidth: 'none' }}>
                     {MENU.map((m, i) => (
                         <motion.button key={m.id} whileTap={{ scale: 0.95 }} onClick={() => onSelect(m.id)}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm shrink-0 nm-press transition-all"
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-base shrink-0 nm-press transition-all"
                             style={i === currentIndex
                                 ? { background: GOLD, color: BG, boxShadow: `0 0 14px rgba(212,160,23,0.4)` }
                                 : { background: BG_LIGHT, color: `${IVORY}80`, boxShadow: '3px 3px 8px rgba(0,0,0,0.5), -2px -2px 5px rgba(255,255,255,0.03)' }
