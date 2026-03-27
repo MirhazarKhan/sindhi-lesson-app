@@ -1,343 +1,312 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
+import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'motion/react';
+import { Sparkles, BookOpen } from 'lucide-react';
+import lessonData from '../data/lesson.json';
 import IntroSlides from './IntroSlides';
 import VocabularyGame from './VocabularyGame';
 import WordBreaker from './WordBreaker';
 import QuizSection from './QuizSection';
-import dynamic from 'next/dynamic';
+
+const BookLayout = dynamic(() => import('./BookLayout'), { ssr: false });
 const ShrineViewer = dynamic(() => import('./ShrineViewer'), { ssr: false });
-import PageTurnTransition from './PageTurnTransition';
-import lessonData from '../data/lesson.json';
-import {
-    BookOpen, Puzzle, CheckSquare, Type, Volume2,
-    MousePointer2, RotateCcw, Home, Square, Building2,
-    ChevronLeft, ChevronRight, Sparkles,
-} from 'lucide-react';
-import { playSindhiAudio, stopAudio, prefetchLessonAudio } from '../utils/audioPlayer';
 
-type Section = 'menu' | 'intro' | 'vocab' | 'breaker' | 'quiz' | 'shrine';
-type AppState = 'init' | 'splash' | 'main';
-
-const BG = '#0E0B16';
-const BG_LIGHT = '#1A1528';
+const NEON_PINK = '#FF0055';
 const GOLD = '#D4A017';
-const GOLD_BRIGHT = '#F5C842';
-const CRIMSON = '#C1121F';
-const IVORY = '#F0E6D3';
+const TEAL = '#0891B2';
+const TEAL_DARK = '#0e7490';
+const ORANGE = '#f97316';
+const TEXT = '#1e293b';
+const TEXT_MUTED = '#475569';
 
-const MENU = [
-    { id: 'intro', title: 'تعارف', desc: 'شاهه صاحب جي زندگي بابت پڙهو', icon: BookOpen, badge: '📖', accent: '#0D7377' },
-    { id: 'vocab', title: 'لفظن جي راند', desc: 'جوڙ ۽ ٽوڙ ذريعي لفظ سکو', icon: Puzzle, badge: '🧩', accent: '#C1121F' },
-    { id: 'breaker', title: 'لفظ ٺاهيو', desc: 'اکرن کي ڇڪي لفظ ٺاهيو', icon: Type, badge: '✍️', accent: '#1B4332' },
-    { id: 'quiz', title: 'مشق', desc: 'پنهنجي ڄاڻ کي پرکو', icon: CheckSquare, badge: '🏆', accent: '#7B2D8B' },
-    { id: 'shrine', title: 'مزار', desc: 'ڀٽ شاهه مزار جو 3D تجربو', icon: Building2, badge: '🕌', accent: '#B5451B' },
+// ── Chapter labels for the tab bar ───────────────────────────────────────────
+const CHAPTERS = [
+  { label: 'سرورق', en: 'Cover' },
+  { label: 'تعارف', en: 'Intro' },
+  { label: 'لفظ', en: 'Vocab' },
+  { label: 'مشق', en: 'Quiz' },
+  { label: 'مزار', en: 'Shrine' },
 ];
 
-const GoldLine = () => (
-    <div className="w-full h-px" style={{ background: `linear-gradient(90deg, transparent, ${GOLD}66, transparent)` }} />
-);
-
-function SidebarBtn({ active, onClick, icon, label, danger }: {
-    active: boolean; onClick: () => void; icon: React.ReactNode; label: string; danger?: boolean;
-}) {
-    return (
-        <button onClick={onClick}
-            className="flex items-center gap-2 px-3 py-2.5 rounded-xl font-bold text-base transition-all whitespace-nowrap nm-press"
-            style={active
-                ? { background: GOLD, color: BG, boxShadow: `0 0 18px rgba(212,160,23,0.5), inset 2px 2px 6px rgba(0,0,0,0.3)` }
-                : danger
-                    ? { background: BG_LIGHT, color: '#ff6b6b', boxShadow: '4px 4px 10px rgba(0,0,0,0.5), -2px -2px 6px rgba(255,255,255,0.03)' }
-                    : { background: BG_LIGHT, color: IVORY, boxShadow: '4px 4px 10px rgba(0,0,0,0.5), -2px -2px 6px rgba(255,255,255,0.03)' }
-            }
-        >
-            {icon}<span>{label}</span>
-        </button>
-    );
+// ── Cover spread ─────────────────────────────────────────────────────────────
+function CoverLeft() {
+  return (
+    <div className="flex flex-col justify-center h-full p-8" dir="rtl">
+      <p className="text-sm uppercase tracking-widest mb-6 font-bold" style={{ color: TEXT_MUTED }}>
+        Sindhi Digital Textbook
+      </p>
+      <h1 className="text-5xl font-black leading-tight mb-3" style={{ color: TEXT }}>
+        شاهه عبداللطيف
+      </h1>
+      <h2 className="text-4xl font-black mb-6" style={{ color: TEAL }}>
+        ڀٽائي
+      </h2>
+      <div className="w-16 h-1 rounded mb-6" style={{ background: TEAL }} />
+      <p className="text-xl leading-relaxed" style={{ color: TEXT_MUTED }}>
+        سنڌ جو عظيم صوفي شاعر — هن ڪتاب ۾ سندس زندگي، شاعري ۽ مزار بابت سکو.
+      </p>
+      <div className="mt-8 space-y-3">
+        {CHAPTERS.slice(1).map((c, i) => (
+          <div key={i} className="flex items-center gap-3 text-lg" style={{ color: TEXT_MUTED }}>
+            <span className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold text-white"
+              style={{ background: TEAL }}>{i + 1}</span>
+            {c.label}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
-function HeroMenu({ currentIndex, onSelect, onNext, onPrev }: {
-    currentIndex: number; onSelect: (id: string) => void; onNext: () => void; onPrev: () => void;
-}) {
-    const item = MENU[currentIndex];
-    return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="relative min-h-screen w-full overflow-hidden flex flex-col geo-pattern"
-            style={{ background: BG }}>
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute rounded-full blur-[120px]" style={{ width: 500, height: 500, top: '-15%', left: '-10%', background: 'rgba(13,115,119,0.12)' }} />
-                <div className="absolute rounded-full blur-[100px]" style={{ width: 400, height: 400, bottom: '-10%', right: '-5%', background: 'rgba(193,18,31,0.1)' }} />
-                <div className="absolute rounded-full blur-[80px]" style={{ width: 300, height: 300, top: '40%', left: '50%', background: 'rgba(212,160,23,0.07)' }} />
-            </div>
-            <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 z-10" style={{ background: `linear-gradient(to bottom, ${BG}cc 0%, ${BG}99 40%, ${BG}ee 100%)` }} />
-                <Image src="/shah_abdul_latif.jpg" alt="Shah Abdul Latif Bhittai" fill className="object-cover object-center opacity-10" priority />
-            </div>
-            <div className="relative z-20 flex items-center justify-between px-6 md:px-12 pt-6 pb-4">
-                <div className="flex items-center gap-3 nm-flat rounded-2xl px-4 py-2.5" style={{ background: BG_LIGHT }}>
-                    <span className="text-2xl">🕌</span>
-                    <div dir="rtl">
-                        <div className="font-black text-lg leading-none" style={{ color: GOLD }}>سنڌي سبق</div>
-                        <div className="text-sm opacity-40" style={{ color: IVORY }}>شاهه عبداللطيف ڀٽائي</div>
-                    </div>
-                </div>
-                <div className="flex gap-2" dir="ltr">
-                    {MENU.map((_, i) => (
-                        <motion.div key={i} animate={{ width: i === currentIndex ? 28 : 6, opacity: i === currentIndex ? 1 : 0.25 }}
-                            className="h-1.5 rounded-full" style={{ background: GOLD }} />
-                    ))}
-                </div>
-            </div>
-            <GoldLine />
-            <div className="relative z-20 flex-1 flex flex-col md:flex-row items-center justify-center gap-8 px-6 md:px-16 py-6 md:py-10" dir="rtl">
-                <div className="flex-1 flex flex-col justify-center max-w-xl w-full">
-                    <AnimatePresence mode="wait">
-                        <motion.div key={`hero-${currentIndex}`}
-                            initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-                            transition={{ duration: 0.3 }}>
-                            <div className="text-5xl mb-3">{item.badge}</div>
-                            <h1 className="font-black leading-none mb-3 drop-shadow-2xl"
-                                style={{ fontSize: 'clamp(3.5rem, 14vw, 7rem)', color: IVORY }}>
-                                {item.title}
-                            </h1>
-                            <p className="text-lg md:text-2xl mb-6 md:mb-10 leading-relaxed" style={{ color: `${IVORY}80` }}>
-                                {item.desc}
-                            </p>
-                            <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                                onClick={() => onSelect(item.id)}
-                                className="inline-flex items-center gap-3 px-8 py-4 md:px-10 md:py-5 rounded-2xl font-black text-xl md:text-2xl nm-gold-glow nm-press"
-                                style={{ background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_BRIGHT} 100%)`, color: BG }}>
-                                <Sparkles className="w-5 h-5" />شروع ڪريو
-                            </motion.button>
-                        </motion.div>
-                    </AnimatePresence>
-                </div>
-                <div className="hidden md:flex flex-1 items-center justify-center relative min-h-[320px] max-w-sm w-full">
-                    {[-1, 1].map(offset => {
-                        const idx = (currentIndex + offset + MENU.length) % MENU.length;
-                        return (
-                            <div key={offset} className="absolute rounded-3xl opacity-20"
-                                style={{ width: 208, height: 240, background: BG_LIGHT, transform: `translateX(${offset * 65}px) scale(0.82)`, boxShadow: '8px 8px 20px rgba(0,0,0,0.6)', border: `1px solid rgba(212,160,23,0.1)` }}>
-                                <div className="flex items-center justify-center h-full text-5xl">{MENU[idx].badge}</div>
-                            </div>
-                        );
-                    })}
-                    <AnimatePresence mode="wait">
-                        <motion.button key={`card-${currentIndex}`}
-                            initial={{ opacity: 0, scale: 0.88, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.88, y: -16 }}
-                            transition={{ duration: 0.3, type: 'spring', bounce: 0.25 }}
-                            whileHover={{ scale: 1.03, y: -5 }} whileTap={{ scale: 0.97 }}
-                            onClick={() => onSelect(item.id)}
-                            className="relative rounded-3xl flex flex-col items-center justify-center gap-5 overflow-hidden"
-                            style={{ width: 240, height: 280, background: BG_LIGHT, boxShadow: `12px 12px 32px rgba(0,0,0,0.7), -6px -6px 18px rgba(255,255,255,0.04), 0 0 30px ${item.accent}33`, border: `1px solid rgba(212,160,23,0.15)` }}>
-                            <div className="absolute inset-0 rounded-3xl" style={{ background: `radial-gradient(circle at 30% 30%, ${item.accent}22, transparent 70%)` }} />
-                            <span className="text-6xl relative z-10">{item.badge}</span>
-                            <span className="text-4xl font-black relative z-10" style={{ color: IVORY }}>{item.title}</span>
-                            <span className="text-sm relative z-10 px-4 text-center opacity-50" style={{ color: IVORY }}>{item.desc}</span>
-                        </motion.button>
-                    </AnimatePresence>
-                </div>
-            </div>
-            <div className="relative z-20 pb-6 px-4 flex flex-col items-center gap-4">
-                <GoldLine />
-                <div className="flex overflow-x-auto gap-2 mt-3 w-full pb-1 justify-start md:justify-center" dir="rtl" style={{ scrollbarWidth: 'none' }}>
-                    {MENU.map((m, i) => (
-                        <motion.button key={m.id} whileTap={{ scale: 0.95 }} onClick={() => onSelect(m.id)}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-base shrink-0 nm-press transition-all"
-                            style={i === currentIndex
-                                ? { background: GOLD, color: BG, boxShadow: `0 0 14px rgba(212,160,23,0.4)` }
-                                : { background: BG_LIGHT, color: `${IVORY}80`, boxShadow: '3px 3px 8px rgba(0,0,0,0.5), -2px -2px 5px rgba(255,255,255,0.03)' }
-                            }>
-                            <span>{m.badge}</span><span>{m.title}</span>
-                        </motion.button>
-                    ))}
-                </div>
-                <div className="flex gap-3" dir="ltr">
-                    {[{ fn: onNext, icon: <ChevronLeft className="w-4 h-4" /> }, { fn: onPrev, icon: <ChevronRight className="w-4 h-4" /> }].map((b, i) => (
-                        <motion.button key={i} whileTap={{ scale: 0.9 }} onClick={b.fn}
-                            className="p-3 rounded-full nm-raised nm-press" style={{ background: BG_LIGHT, color: IVORY }}>
-                            {b.icon}
-                        </motion.button>
-                    ))}
-                </div>
-            </div>
-        </motion.div>
-    );
+function CoverRight() {
+  return (
+    <div className="flex flex-col items-center justify-center h-full p-6 gap-6"
+      style={{ background: 'linear-gradient(160deg, #f0f9ff 0%, #e0f2fe 100%)' }}>
+      <div className="w-72 h-72 rounded-full overflow-hidden"
+        style={{ maskImage: 'radial-gradient(circle, black 55%, transparent 80%)', WebkitMaskImage: 'radial-gradient(circle, black 55%, transparent 80%)' }}>
+        <img src="/ShahAbdulLatifcom.jpg" alt="Shah Abdul Latif Bhittai"
+          className="w-full h-full object-cover" />
+      </div>
+      <div className="text-center" dir="rtl">
+        <p className="text-2xl font-bold mb-1" style={{ color: TEXT }}>1689ع — 1752ع</p>
+        <p className="text-lg" style={{ color: TEXT_MUTED }}>ڀٽ شاهه، سنڌ، پاڪستان</p>
+      </div>
+      <blockquote className="text-center text-xl italic leading-relaxed max-w-xs px-4"
+        dir="rtl" style={{ color: TEXT_MUTED, borderRight: `4px solid ${TEAL}`, paddingRight: 14 }}>
+        ڪانه پُڇي ٿو ذاتِ، جيڪي آيا سي اَگهيا
+      </blockquote>
+    </div>
+  );
 }
 
+// ── Intro spread ─────────────────────────────────────────────────────────────
+function IntroRight() {
+  return (
+    <div className="flex flex-col justify-center h-full p-8" dir="rtl"
+      style={{ background: 'linear-gradient(160deg, #f0fdf4 0%, #dcfce7 100%)' }}>
+      <h3 className="text-3xl font-black mb-4" style={{ color: '#15803d' }}>شاهه جو رسالو</h3>
+      <div className="w-10 h-1 rounded mb-5" style={{ background: '#16a34a' }} />
+      <p className="text-xl leading-relaxed mb-6" style={{ color: TEXT }}>
+        شاهه صاحب جي شاعري جو مجموعو <strong>"شاهه جو رسالو"</strong> سنڌي ادب جو سڀ کان وڏو خزانو آهي.
+        ان ۾ 30 سُر آهن، جن ۾ محبت، قرباني، ۽ روحانيت جا سبق آهن.
+      </p>
+      <div className="rounded-2xl p-5 shadow-sm" style={{ background: '#fff', border: `2px solid #86efac` }}>
+        <p className="text-sm uppercase tracking-widest mb-2 font-bold" style={{ color: '#16a34a' }}>
+          مشهور شعر
+        </p>
+        <p className="text-xl italic font-bold leading-relaxed" style={{ color: TEXT }}>
+          "جيڪي پيا پرين سان، تن کي پيا پرين ملن"
+        </p>
+      </div>
+      <div className="mt-6 grid grid-cols-2 gap-3">
+        {[['30', 'سُر'], ['600+', 'بيت'], ['1689', 'پيدائش'], ['1752', 'وفات']].map(([val, lbl]) => (
+          <div key={lbl} className="rounded-xl p-4 text-center shadow-sm" style={{ background: '#fff', border: `2px solid #bbf7d0` }}>
+            <div className="text-3xl font-black" style={{ color: '#16a34a' }}>{val}</div>
+            <div className="text-base mt-1" style={{ color: TEXT_MUTED }}>{lbl}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Quiz spread wrapper ───────────────────────────────────────────────────────
+function QuizLeft({ onComplete }: { onComplete: () => void }) {
+  return (
+    <div className="h-full overflow-y-auto custom-scrollbar">
+      <QuizSection data={lessonData.quiz} onComplete={onComplete} />
+    </div>
+  );
+}
+
+// ── Shrine spread ─────────────────────────────────────────────────────────────
+function ShrineLeft() {
+  const points = [
+    ['مزار جو نالو', 'ڀٽ شاهه مزار'],
+    ['مقام', 'ڀٽ شاهه، سنڌ'],
+    ['تعمير', '18هين صدي'],
+    ['اهميت', 'سنڌ جو روحاني مرڪز'],
+  ];
+  return (
+    <div className="flex flex-col justify-center h-full p-8" dir="rtl"
+      style={{ background: 'linear-gradient(160deg, #fefce8 0%, #fef9c3 100%)' }}>
+      <h3 className="text-3xl font-black mb-2" style={{ color: '#92400e' }}>ڀٽ شاهه مزار</h3>
+      <div className="w-10 h-1 rounded mb-5" style={{ background: '#d97706' }} />
+      <p className="text-xl leading-relaxed mb-6" style={{ color: TEXT }}>
+        هي مزار سنڌ جي عظيم صوفي شاعر شاهه عبداللطيف ڀٽائي جو آرامگاهه آهي.
+        هر سال هزارين عقيدتمند هتي حاضري ڀرين ٿا.
+      </p>
+      <div className="space-y-3">
+        {points.map(([label, value]) => (
+          <div key={label} className="flex justify-between items-center py-3 border-b"
+            style={{ borderColor: '#fde68a' }}>
+            <span className="text-base font-bold" style={{ color: TEXT_MUTED }}>{label}</span>
+            <span className="text-lg font-bold" style={{ color: TEXT }}>{value}</span>
+          </div>
+        ))}
+      </div>
+      <p className="mt-6 text-base" style={{ color: TEXT_MUTED }}>
+        ساڄي پاسي 3D ماڊل کي ڇڪيو ۽ ويجهو ڪريو
+      </p>
+    </div>
+  );
+}
+
+// ── Main LessonModule ─────────────────────────────────────────────────────────
 export default function LessonModule() {
-    const [currentSection, setCurrentSection] = useState<Section>('menu');
-    const [appState, setAppState] = useState<AppState>('init');
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [sectionKey, setSectionKey] = useState(0);
-    const [isHoverSpeakEnabled, setIsHoverSpeakEnabled] = useState(false);
-    const [isReadingAll, setIsReadingAll] = useState(false);
-    const [turnDirection, setTurnDirection] = useState<'forward' | 'back'>('forward');
-    const [ttsNoBalance, setTtsNoBalance] = useState(false);
-    const prevSectionRef = useRef<Section>('menu');
+  const [started, setStarted] = useState(false);
+  const [spread, setSpread] = useState(0);
 
-    useEffect(() => { prefetchLessonAudio(lessonData); }, []);
-    useEffect(() => {
-        const handler = () => setTtsNoBalance(true);
-        window.addEventListener('tts:no-balance', handler);
-        return () => window.removeEventListener('tts:no-balance', handler);
-    }, []);
+  const totalSpreads = CHAPTERS.length; // 0–4
 
-    const handleSectionChange = (section: Section) => {
-        setTurnDirection(section === 'menu' ? 'back' : 'forward');
-        prevSectionRef.current = currentSection;
-        setCurrentSection(section);
-        setSectionKey(p => p + 1);
-        stopReadingAll();
-    };
-    const handleRestart = () => { setSectionKey(p => p + 1); stopReadingAll(); };
+  const goNext = () => setSpread(p => Math.min(totalSpreads - 1, p + 1));
+  const goPrev = () => setSpread(p => Math.max(0, p - 1));
 
-    useEffect(() => {
-        if (appState !== 'splash') return;
-        playSindhiAudio('ڪانه پُڇي ٿو ذاتِ، جيڪي آيا سي اَگهيا');
-        const t = setTimeout(() => setAppState('main'), 5000);
-        return () => clearTimeout(t);
-    }, [appState]);
-
-    useEffect(() => {
-        if (!isHoverSpeakEnabled) { stopAudio(); return; }
-        let last = ''; let tid: NodeJS.Timeout;
-        const h = (e: MouseEvent) => {
-            const node = (e.target as HTMLElement).closest('p,h1,h2,h3,span,button');
-            if (!node) return;
-            const text = node.textContent?.trim();
-            if (text && text.length < 200 && text !== last) {
-                clearTimeout(tid); tid = setTimeout(() => { last = text; playSindhiAudio(text); }, 300);
-            }
+  // Build left/right page content per spread
+  const getPages = () => {
+    switch (spread) {
+      case 0:
+        return { left: <CoverLeft />, right: <CoverRight /> };
+      case 1:
+        return {
+          left: (
+            <div className="h-full overflow-y-auto custom-scrollbar">
+              <IntroSlides data={lessonData.introSlides} onComplete={goNext} />
+            </div>
+          ),
+          right: <IntroRight />,
         };
-        document.addEventListener('mouseover', h);
-        return () => { document.removeEventListener('mouseover', h); clearTimeout(tid); stopAudio(); };
-    }, [isHoverSpeakEnabled]);
+      case 2:
+        return {
+          left: (
+            <div className="h-full overflow-y-auto custom-scrollbar">
+              <VocabularyGame data={lessonData.vocabularyGame} onComplete={goNext} />
+            </div>
+          ),
+          right: (
+            <div className="h-full overflow-y-auto custom-scrollbar">
+              <WordBreaker data={lessonData.vocabularyGame} onComplete={goNext} />
+            </div>
+          ),
+        };
+      case 3:
+        return {
+          left: <QuizLeft onComplete={goNext} />,
+          right: (
+            <div className="flex flex-col items-center justify-center h-full p-8" dir="rtl"
+              style={{ background: 'linear-gradient(160deg, #f0f9ff 0%, #e0f2fe 100%)' }}>
+              <div className="text-7xl mb-4">🏆</div>
+              <h3 className="text-3xl font-black mb-3" style={{ color: TEAL }}>مشق</h3>
+              <p className="text-xl text-center leading-relaxed" style={{ color: TEXT_MUTED }}>
+                کاٻي پاسي سوالن جا جواب ڏيو. صحيح جواب لاءِ پوائنٽ ملندا.
+              </p>
+              <div className="mt-8 w-full rounded-2xl p-5 shadow-sm" style={{ background: '#fff', border: `2px solid #bae6fd` }}>
+                <p className="text-sm font-bold mb-3" style={{ color: TEXT_MUTED }}>سيڪشن</p>
+                <p className="text-xl font-bold mb-2" style={{ color: TEXT }}>✅ صحيح يا غلط</p>
+                <p className="text-xl font-bold" style={{ color: TEXT }}>✏️ خالي جايون ڀريو</p>
+              </div>
+            </div>
+          ),
+        };
+      case 4:
+        return {
+          left: <ShrineLeft />,
+          right: (
+            <div className="h-full">
+              <ShrineViewer onComplete={goNext} />
+            </div>
+          ),
+        };
+      default:
+        return { left: null, right: null };
+    }
+  };
 
-    const stopReadingAll = () => { stopAudio(); setIsReadingAll(false); };
-    const handleReadAll = async () => {
-        if (isReadingAll) { stopReadingAll(); return; }
-        let text = '';
-        if (currentSection === 'intro') text = lessonData.introSlides.map(s => s.text).join('۔ ');
-        else if (currentSection === 'vocab' || currentSection === 'breaker') text = lessonData.vocabularyGame.map(v => v.word).join('۔ ');
-        else if (currentSection === 'quiz') text = [...lessonData.quiz.trueFalse.map(q => q.question), ...lessonData.quiz.fillInTheBlanks.map(q => q.question)].join('۔ ');
-        if (!text) return;
-        setIsReadingAll(true); await playSindhiAudio(text); setIsReadingAll(false);
-    };
+  const { left, right } = getPages();
 
-    const renderSection = () => {
-        switch (currentSection) {
-            case 'intro': return <IntroSlides key={sectionKey} data={lessonData.introSlides} onComplete={() => handleSectionChange('menu')} />;
-            case 'vocab': return <VocabularyGame key={sectionKey} data={lessonData.vocabularyGame} onComplete={() => handleSectionChange('menu')} />;
-            case 'breaker': return <WordBreaker key={sectionKey} data={lessonData.vocabularyGame} onComplete={() => handleSectionChange('menu')} />;
-            case 'quiz': return <QuizSection key={sectionKey} data={lessonData.quiz} onComplete={() => handleSectionChange('menu')} />;
-            case 'shrine': return <ShrineViewer key={sectionKey} onComplete={() => handleSectionChange('menu')} />;
-            default: return <HeroMenu currentIndex={currentIndex} onSelect={id => handleSectionChange(id as Section)}
-                onNext={() => setCurrentIndex(p => (p + 1) % MENU.length)}
-                onPrev={() => setCurrentIndex(p => (p - 1 + MENU.length) % MENU.length)} />;
-        }
-    };
+  return (
+    <div className="min-h-screen w-full flex flex-col items-center justify-center overflow-hidden"
+      style={{ background: 'linear-gradient(160deg, #e0f2fe 0%, #bae6fd 100%)' }}>
 
-    return (
-        <div className="min-h-screen font-lateef" style={{ background: BG }}>
-            {ttsNoBalance && (
-                <div className="fixed top-0 inset-x-0 z-[300] flex items-center justify-between gap-3 px-5 py-3 text-sm font-bold"
-                    style={{ background: CRIMSON, color: '#fff', direction: 'rtl' }}>
-                    <span>🔇 سنڌي آواز بند آهي — UpliftAI اڪائونٽ ۾ بيلنس ختم ٿي ويو آهي</span>
-                    <a href="https://upliftai.org" target="_blank" rel="noopener noreferrer" className="underline opacity-80 hover:opacity-100 whitespace-nowrap">upliftai.org تي ٽاپ اپ ڪريو</a>
-                    <button onClick={() => setTtsNoBalance(false)} className="opacity-60 hover:opacity-100 text-lg leading-none">✕</button>
-                </div>
-            )}
+      {/* ── Splash ── */}
+      <AnimatePresence>
+        {!started && (
+          <motion.div key="splash"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+            style={{ background: 'linear-gradient(160deg, #0ea5e9 0%, #0891b2 50%, #0e7490 100%)' }}
+            exit={{ opacity: 0, scale: 1.06 }}
+            transition={{ duration: 0.55 }}>
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              <div className="absolute rounded-full blur-[120px] opacity-30"
+                style={{ width: 500, height: 400, top: '-10%', right: '-5%', background: '#7dd3fc' }} />
+              <div className="absolute rounded-full blur-[100px] opacity-20"
+                style={{ width: 400, height: 300, bottom: '-5%', left: '-5%', background: '#bae6fd' }} />
+            </div>
+            <motion.div initial={{ opacity: 0, y: -24 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }} className="text-center mb-10" dir="rtl">
+              <h1 className="font-black leading-none mb-2 drop-shadow-lg"
+                style={{ fontSize: 'clamp(2.8rem,11vw,5.5rem)', color: '#ffffff' }}>
+                شاهه عبداللطيف
+              </h1>
+              <h2 className="font-black drop-shadow-lg"
+                style={{ fontSize: 'clamp(1.8rem,7vw,3.5rem)', color: '#fef9c3' }}>
+                ڀٽائي
+              </h2>
+              <p className="mt-4 text-xl font-medium" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                سنڌ جو عظيم صوفي شاعر
+              </p>
+            </motion.div>
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.35, type: 'spring', bounce: 0.4 }}
+              whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.93 }}
+              onClick={() => setStarted(true)}
+              className="flex items-center gap-3 px-10 py-5 rounded-full font-black text-2xl shadow-2xl"
+              style={{ background: '#ffffff', color: TEAL }}>
+              <BookOpen className="w-6 h-6" />
+              ڪتاب کوليو
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            <AnimatePresence>
-                {appState === 'init' && (
-                    <motion.div key="init" className="fixed inset-0 z-[200] flex items-center justify-center overflow-hidden geo-pattern"
-                        style={{ background: BG }} exit={{ opacity: 0, scale: 1.04 }} transition={{ duration: 0.7 }}>
-                        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                            <div className="absolute rounded-full blur-[140px]" style={{ width: 600, height: 600, top: '-20%', left: '-15%', background: 'rgba(13,115,119,0.18)' }} />
-                            <div className="absolute rounded-full blur-[120px]" style={{ width: 500, height: 500, bottom: '-15%', right: '-10%', background: 'rgba(193,18,31,0.14)' }} />
-                        </div>
-                        <div className="relative z-10 flex flex-col items-center gap-8 px-8 text-center" dir="rtl">
-                            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
-                                className="text-7xl float">🕌</motion.div>
-                            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }}
-                                className="nm-raised-lg rounded-3xl px-8 py-6" style={{ background: BG_LIGHT }}>
-                                <h1 className="text-5xl md:text-7xl font-black leading-tight" style={{ color: IVORY }}>
-                                    شاهه عبداللطيف<br /><span className="gold-shimmer">ڀٽائي</span>
-                                </h1>
-                            </motion.div>
-                            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-                                className="text-xl md:text-2xl opacity-50" style={{ color: IVORY }}>سنڌ جو عظيم صوفي شاعر</motion.p>
-                            <GoldLine />
-                            <motion.button initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.7, type: 'spring', bounce: 0.35 }}
-                                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                                onClick={() => setAppState('splash')}
-                                className="mt-2 px-12 py-5 rounded-full font-black text-2xl md:text-3xl nm-gold-glow nm-press"
-                                style={{ background: `linear-gradient(135deg, ${GOLD}, ${GOLD_BRIGHT})`, color: BG }}>
-                                <span className="flex items-center gap-3"><Sparkles className="w-7 h-7" />شروع ڪريو</span>
-                            </motion.button>
-                        </div>
-                    </motion.div>
-                )}
-                {appState === 'splash' && (
-                    <motion.div key="splash" className="fixed inset-0 z-[100] pointer-events-none flex items-center justify-center overflow-hidden geo-pattern"
-                        style={{ background: BG }} exit={{ opacity: 0 }} transition={{ duration: 1 }}>
-                        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                            <div className="absolute rounded-full blur-[160px]" style={{ width: 700, height: 700, top: '-25%', left: '-20%', background: 'rgba(13,115,119,0.15)' }} />
-                            <div className="absolute rounded-full blur-[120px]" style={{ width: 500, height: 500, bottom: '-20%', right: '-15%', background: 'rgba(193,18,31,0.12)' }} />
-                        </div>
-                        <div className="relative z-10 flex flex-col items-center gap-6 px-8 text-center" dir="rtl">
-                            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}
-                                className="text-4xl md:text-6xl lg:text-7xl font-black leading-snug" style={{ color: IVORY }}>
-                                ڪانه پُڇي ٿو ذاتِ،
-                            </motion.div>
-                            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 1 }}
-                                className="text-4xl md:text-6xl lg:text-7xl font-black leading-snug gold-shimmer">
-                                جيڪي آيا سي اَگهيا۔
-                            </motion.div>
-                            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.2 }}
-                                className="text-base md:text-xl opacity-30 mt-2" style={{ color: IVORY }}>— شاهه عبداللطيف ڀٽائي</motion.p>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+      {/* ── Book ── */}
+      {started && (
+        <div className="relative w-full h-screen flex flex-col">
+          {/* Chapter tabs */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+            {CHAPTERS.map((c, i) => (
+              <button key={i} onClick={() => setSpread(i)}
+                className="px-3 py-1.5 rounded-full text-sm font-black tracking-wide transition-all duration-200 shadow-sm"
+                style={{
+                  background: spread === i ? TEAL : 'rgba(255,255,255,0.85)',
+                  color: spread === i ? '#fff' : TEXT_MUTED,
+                  border: `2px solid ${spread === i ? TEAL : 'transparent'}`,
+                  transform: spread === i ? 'scale(1.08)' : 'scale(1)',
+                }}>
+                {c.label}
+              </button>
+            ))}
+          </div>
 
-            {currentSection === 'menu' ? (
-                <div className="min-h-screen">
-                    <PageTurnTransition pageKey={currentSection + sectionKey} direction={turnDirection}>
-                        {renderSection()}
-                    </PageTurnTransition>
-                </div>
-            ) : (
-                <div className="min-h-screen flex flex-col md:flex-row" dir="rtl" style={{ background: BG }}>
-                    <aside className="w-full md:w-56 flex flex-row md:flex-col p-3 md:p-4 gap-2 z-50 overflow-x-auto md:overflow-visible shrink-0 border-b md:border-b-0 md:border-l"
-                        style={{ background: BG_LIGHT, borderColor: `${GOLD}22`, boxShadow: '4px 0 20px rgba(0,0,0,0.4)' }}>
-                        <div className="hidden md:flex flex-col items-center gap-2 mb-4 pb-4" style={{ borderBottom: `1px solid ${GOLD}22` }}>
-                            <span className="text-3xl">🕌</span>
-                            <h2 className="text-lg font-black text-center" style={{ color: GOLD }}>سنڌي سبق</h2>
-                        </div>
-                        <SidebarBtn active={isReadingAll} onClick={handleReadAll}
-                            icon={isReadingAll ? <Square className="w-4 h-4 fill-current" /> : <Volume2 className="w-4 h-4" />}
-                            label={isReadingAll ? 'بند ڪريو' : 'سڀ پڙهو'} />
-                        <SidebarBtn active={isHoverSpeakEnabled} onClick={() => setIsHoverSpeakEnabled(v => !v)}
-                            icon={<MousePointer2 className="w-4 h-4" />} label="لفظ تي آواز" />
-                        <div className="hidden md:block flex-1" />
-                        <SidebarBtn active={false} onClick={handleRestart} icon={<RotateCcw className="w-4 h-4" />} label="ٻيهر شروع" />
-                        <SidebarBtn active={false} onClick={() => handleSectionChange('menu')} icon={<Home className="w-4 h-4" />} label="واپس مينيو" danger />
-                    </aside>
-                    <main className="flex-1 flex flex-col h-screen overflow-y-auto custom-scrollbar">
-                        <div className="container mx-auto py-6 px-4 flex-1 flex flex-col">
-                            <PageTurnTransition pageKey={currentSection + sectionKey} direction={turnDirection}>
-                                {renderSection()}
-                            </PageTurnTransition>
-                        </div>
-                    </main>
-                </div>
-            )}
+          {/* BookLayout fills remaining space */}
+          <div className="flex-1 pt-12">
+            <BookLayout
+              leftPage={left}
+              rightPage={right}
+              onNext={goNext}
+              onPrev={goPrev}
+              canNext={spread < totalSpreads - 1}
+              canPrev={spread > 0}
+              pageLabel={`${spread + 1} / ${totalSpreads}`}
+              accentColor={TEAL}
+              title="شاهه عبداللطيف ڀٽائي"
+            />
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );
 }

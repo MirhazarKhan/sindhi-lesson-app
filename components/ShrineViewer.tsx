@@ -150,7 +150,7 @@ export default function ShrineViewer({ onComplete }: { onComplete: () => void })
     };
 
     return (
-        <div className={`flex flex-col w-full font-lateef ${fullscreen ? 'fixed inset-0 z-[999]' : 'min-h-[70vh]'}`}
+        <div className={`flex flex-col w-full h-full font-lateef ${fullscreen ? 'fixed inset-0 z-[999]' : ''}`}
             dir="rtl" style={{ background: '#000' }}>
 
             <div className="w-full flex flex-col h-full overflow-hidden"

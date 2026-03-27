@@ -145,7 +145,7 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #D4A017;
+  background: #0891B2;
   border-radius: 2px;
 }
 
@@ -163,6 +163,10 @@
 html,
 body {
   overscroll-behavior: none;
+  background: #e0f2fe;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 [data-framer-drag] {
