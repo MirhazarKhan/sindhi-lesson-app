@@ -95,12 +95,17 @@ export default function BookLayout({
             {dust.map((d, i) => <DustMote key={i} x={d.x} y={d.y} delay={d.delay} />)}
 
             <div className="relative flex items-center justify-center w-full h-full px-4 py-4">
-                <div className="relative flex"
-                    style={{ width: 'min(96vw, 1200px)', height: 'min(88vh, 780px)', filter: 'drop-shadow(0 20px 48px rgba(0,0,0,0.18))' }}>
+                <div className="relative flex flex-col md:flex-row overflow-y-auto md:overflow-visible snap-y snap-mandatory custom-scrollbar"
+                    style={{ 
+                        width: 'min(96vw, 1200px)', 
+                        height: 'min(88vh, 780px)', 
+                        filter: 'drop-shadow(0 20px 48px rgba(0,0,0,0.18))',
+                        borderRadius: '16px'
+                    }}>
 
                     {/* Left page */}
-                    <div className="relative flex-1 flex flex-col overflow-hidden"
-                        style={{ ...pageStyle, borderRadius: '16px 0 0 16px', borderRight: '1px solid #e2d9c8' }}>
+                    <div className="relative w-full h-full flex-shrink-0 md:flex-1 flex flex-col overflow-hidden snap-start"
+                        style={{ ...pageStyle, borderRight: '1px solid #e2d9c8', borderTopLeftRadius: '16px', borderBottomLeftRadius: '16px' }}>
                         <div className="absolute top-0 bottom-0 left-10 w-px opacity-30" style={{ background: accentColor }} />
                         <div className="absolute bottom-4 left-6 text-xs font-bold opacity-25"
                             style={{ color: accentColor, fontFamily: 'Georgia, serif' }}>
@@ -115,10 +120,14 @@ export default function BookLayout({
                                 </motion.div>
                             </AnimatePresence>
                         </div>
+                        {/* Mobile indicator that you can scroll down */}
+                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 md:hidden animate-bounce text-xs font-bold opacity-40 bg-white/80 px-3 py-1 rounded-full shadow-sm" style={{ color: accentColor }}>
+                            ↓ وڌيڪ ↓
+                        </div>
                     </div>
 
                     {/* Spine */}
-                    <div className="relative z-20 flex flex-col items-center justify-center shrink-0"
+                    <div className="relative z-20 hidden md:flex flex-col items-center justify-center shrink-0"
                         style={{ width: 24, background: `linear-gradient(to right, #cbd5e1, #e2e8f0, #cbd5e1)`, boxShadow: '0 0 12px rgba(0,0,0,0.12)' }}>
                         <div className="relative z-10 text-xs font-black tracking-widest opacity-40"
                             style={{ color: accentColor, writingMode: 'vertical-rl', textOrientation: 'mixed', transform: 'rotate(180deg)', fontSize: 8 }}>
@@ -127,8 +136,8 @@ export default function BookLayout({
                     </div>
 
                     {/* Right page */}
-                    <div className="relative flex-1 flex flex-col overflow-hidden"
-                        style={{ ...pageStyle, borderRadius: '0 16px 16px 0', borderLeft: '1px solid #e2d9c8' }}>
+                    <div className="relative w-full h-full flex-shrink-0 md:flex-1 flex flex-col overflow-hidden snap-start"
+                        style={{ ...pageStyle, borderLeft: '1px solid #e2d9c8', borderTopRightRadius: '16px', borderBottomRightRadius: '16px' }}>
                         <div className="absolute top-0 bottom-0 right-10 w-px opacity-30" style={{ background: accentColor }} />
                         <div className="absolute bottom-4 right-6 text-xs font-bold opacity-25"
                             style={{ color: accentColor, fontFamily: 'Georgia, serif' }}>
