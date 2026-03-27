@@ -94,11 +94,12 @@ export default function BookLayout({
 
             {dust.map((d, i) => <DustMote key={i} x={d.x} y={d.y} delay={d.delay} />)}
 
-            <div className="relative flex items-center justify-center w-full h-full px-4 py-4">
+            <div className="relative flex items-center justify-center w-full flex-1 px-4 py-2">
                 <div className="relative flex flex-col md:flex-row overflow-y-auto md:overflow-visible snap-y snap-mandatory custom-scrollbar"
                     style={{ 
                         width: 'min(96vw, 1200px)', 
-                        height: 'min(88vh, 780px)', 
+                        height: '100%', 
+                        maxHeight: '780px', 
                         filter: 'drop-shadow(0 20px 48px rgba(0,0,0,0.18))',
                         borderRadius: '16px'
                     }}>
