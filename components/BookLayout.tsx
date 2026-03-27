@@ -89,7 +89,7 @@ export default function BookLayout({
     };
 
     return (
-        <div className="relative w-full h-full flex flex-col items-center justify-center select-none"
+        <div className="relative w-full flex-1 flex flex-col items-center justify-center select-none min-h-0"
             style={{ background: 'linear-gradient(160deg, #e0f2fe 0%, #bae6fd 40%, #e0f7fa 100%)' }}>
 
             {dust.map((d, i) => <DustMote key={i} x={d.x} y={d.y} delay={d.delay} />)}

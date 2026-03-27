@@ -292,7 +292,7 @@ export default function LessonModule() {
           </div>
 
           {/* BookLayout fills remaining space */}
-          <div className="flex-1 pt-12">
+          <div className="flex-1 pt-12 flex flex-col min-h-0">
             <BookLayout
               leftPage={left}
               rightPage={right}
