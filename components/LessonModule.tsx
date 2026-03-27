@@ -276,10 +276,10 @@ export default function LessonModule() {
       {started && (
         <div className="relative w-full h-screen flex flex-col">
           {/* Chapter tabs */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
             {CHAPTERS.map((c, i) => (
               <button key={i} onClick={() => setSpread(i)}
-                className="px-3 py-1.5 rounded-full text-sm font-black tracking-wide transition-all duration-200 shadow-sm"
+                className="px-5 py-2 rounded-full text-lg font-black tracking-wide transition-all duration-200 shadow-sm"
                 style={{
                   background: spread === i ? TEAL : 'rgba(255,255,255,0.85)',
                   color: spread === i ? '#fff' : TEXT_MUTED,

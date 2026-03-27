@@ -181,27 +181,7 @@ export default function BookLayout({
                 </div>
             </div>
 
-            {/* Nav bar */}
-            <div className="relative z-10 flex items-center gap-5 pb-4">
-                <button onClick={handlePrev} disabled={!canPrev || flipping}
-                    className="flex items-center gap-2 px-5 py-3 rounded-full font-bold text-base transition-all disabled:opacity-40 shadow-lg hover:scale-105 active:scale-95"
-                    style={{ background: canPrev ? accentColor : '#94a3b8', color: '#fff' }}>
-                    <ChevronRight className="w-5 h-5" />
-                    پوئتي
-                </button>
-                {pageLabel && (
-                    <span className="text-base font-black px-5 py-2 rounded-full shadow-md"
-                        style={{ color: accentColor, background: '#fff', border: `2px solid ${accentColor}` }}>
-                        {pageLabel}
-                    </span>
-                )}
-                <button onClick={handleNext} disabled={!canNext || flipping}
-                    className="flex items-center gap-2 px-5 py-3 rounded-full font-bold text-base transition-all disabled:opacity-40 shadow-lg hover:scale-105 active:scale-95"
-                    style={{ background: canNext ? accentColor : '#94a3b8', color: '#fff' }}>
-                    اڳيون
-                    <ChevronLeft className="w-5 h-5" />
-                </button>
-            </div>
+
         </div>
     );
 }
