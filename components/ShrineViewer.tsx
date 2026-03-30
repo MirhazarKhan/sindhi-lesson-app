@@ -2,7 +2,7 @@
 
 import { Suspense, useRef, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useGLTF, OrbitControls, Environment, ContactShadows, Html } from '@react-three/drei';
+import { useGLTF, OrbitControls, Environment, ContactShadows, Html, useProgress } from '@react-three/drei';
 import { motion, AnimatePresence } from 'motion/react';
 import { RotateCcw, ZoomIn, ZoomOut, Info, X, Maximize2, Minimize2 } from 'lucide-react';
 import * as THREE from 'three';
@@ -56,6 +56,8 @@ function CameraReset({ trigger }: { trigger: number }) {
 }
 
 // ── Shrine model ──────────────────────────────────────────────────────────────
+useGLTF.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+
 function ShrineModel({ onLoaded }: { onLoaded: () => void }) {
     const { scene } = useGLTF('/ShahAbdulLatifShrine.glb');
     const called = useRef(false);
@@ -89,12 +91,22 @@ function ShrineModel({ onLoaded }: { onLoaded: () => void }) {
 
 // ── Loader ────────────────────────────────────────────────────────────────────
 function Loader() {
+    const { progress } = useProgress();
     return (
         <Html center>
-            <div className="flex flex-col items-center gap-4" style={{ color: '#FFB703' }}>
-                <div className="w-12 h-12 border-4 rounded-full animate-spin"
-                    style={{ borderColor: 'rgba(255,183,3,0.2)', borderTopColor: '#FFB703' }} />
-                <span className="font-lateef text-2xl">لوڊ ٿي رهيو آهي…</span>
+            <div className="flex flex-col items-center gap-4 w-64" style={{ color: '#FFB703' }}>
+                {/* Custom Progress Bar */}
+                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden border border-white/5">
+                    <motion.div 
+                        className="h-full bg-[#FFB703]"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progress}%` }}
+                    />
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                    <span className="font-lateef text-2xl">لوڊ ٿي رهيو آهي… {Math.round(progress)}%</span>
+                    <span className="text-[10px] opacity-40 uppercase tracking-widest" dir="ltr">Loading 3D Shrine</span>
+                </div>
             </div>
         </Html>
     );

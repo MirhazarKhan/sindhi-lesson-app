@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, BookOpen } from 'lucide-react';
 import lessonData from '../data/lesson.json';
@@ -64,10 +65,10 @@ function CoverRight() {
   return (
     <div className="flex flex-col items-center justify-center h-full p-6 gap-6"
       style={{ background: 'linear-gradient(160deg, #f0f9ff 0%, #e0f2fe 100%)' }}>
-      <div className="w-72 h-72 rounded-full overflow-hidden"
+      <div className="w-72 h-72 rounded-full overflow-hidden relative"
         style={{ maskImage: 'radial-gradient(circle, black 55%, transparent 80%)', WebkitMaskImage: 'radial-gradient(circle, black 55%, transparent 80%)' }}>
-        <img src="/ShahAbdulLatifcom.jpg" alt="Shah Abdul Latif Bhittai"
-          className="w-full h-full object-cover" />
+        <Image src="/ShahAbdulLatifcom.jpg" alt="Shah Abdul Latif Bhittai"
+          fill className="object-cover" priority />
       </div>
       <div className="text-center" dir="rtl">
         <p className="text-2xl font-bold mb-1" style={{ color: TEXT }}>1689ع — 1752ع</p>
